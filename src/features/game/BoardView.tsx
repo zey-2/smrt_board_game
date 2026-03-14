@@ -1,4 +1,5 @@
 import type { GameState } from "../../game/types";
+import { PlayerTokenBadge } from "../players/playerAppearance";
 import {
   getLineBadge,
   getLineLabel,
@@ -52,7 +53,13 @@ export function BoardView({ state, animatedMovement = null }: BoardViewProps) {
               {playersHere.length > 0 ? (
                 <div className="token-row">
                   {playersHere.map((player) => (
-                    <span key={player.id}>{player.name}</span>
+                    <PlayerTokenBadge
+                      key={player.id}
+                      iconId={player.iconId}
+                      colorId={player.colorId}
+                      label={`${player.name} token on ${tile.name}`}
+                      className="player-token-badge"
+                    />
                   ))}
                 </div>
               ) : null}

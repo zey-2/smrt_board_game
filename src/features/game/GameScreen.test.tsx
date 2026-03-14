@@ -84,6 +84,29 @@ describe("GameScreen", () => {
     expect(activeCard).toHaveClass("service-running");
   });
 
+  test("renders player token badges in the player panel", () => {
+    render(<GameScreen initial={initialState} />);
+
+    expect(
+      screen.getByLabelText(`${initialState.players[0].name} player token`)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText(`${initialState.players[1].name} player token`)
+    ).toBeInTheDocument();
+  });
+
+  test("renders player token badges on occupied station tiles", () => {
+    const { container } = render(<GameScreen initial={initialState} />);
+    const boardPanel = container.querySelector(".game-board-panel");
+
+    expect(boardPanel).toBeTruthy();
+    expect(
+      within(boardPanel as HTMLElement).getByLabelText(
+        `${initialState.players[0].name} token on Jurong East`
+      )
+    ).toBeInTheDocument();
+  });
+
   test("renders exit actions in a separate control row", () => {
     const { container } = render(<GameScreen initial={initialState} />);
 
@@ -106,12 +129,18 @@ describe("GameScreen", () => {
     expect(boardPanel).toBeTruthy();
     const queenstownTile = within(boardPanel as HTMLElement).getByText("Queenstown").closest("li");
     expect(queenstownTile).toBeTruthy();
-    expect(within(boardPanel as HTMLElement).getAllByText(activePlayerName)).toHaveLength(1);
-    expect(within(queenstownTile as HTMLElement).queryByText(activePlayerName)).not.toBeInTheDocument();
+    expect(
+      within(boardPanel as HTMLElement).getAllByLabelText(new RegExp(`${activePlayerName} token on`))
+    ).toHaveLength(1);
+    expect(
+      within(queenstownTile as HTMLElement).queryByLabelText(`${activePlayerName} token on Queenstown`)
+    ).not.toBeInTheDocument();
 
     await advancePlaybackFrames(4);
 
-    expect(within(queenstownTile as HTMLElement).getByText(activePlayerName)).toBeInTheDocument();
+    expect(
+      within(queenstownTile as HTMLElement).getByLabelText(`${activePlayerName} token on Queenstown`)
+    ).toBeInTheDocument();
   });
 
   test("waits for movement playback before showing tile resolution actions", async () => {
