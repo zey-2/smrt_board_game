@@ -17,7 +17,7 @@ export function BoardView({ state, animatedMovement = null }: BoardViewProps) {
   return (
     <section className="card game-board-panel">
       <div className="board-panel-header">
-        <h3>Board</h3>
+        <h3>MRT STATIONS</h3>
         <span>{state.board.length} stations</span>
       </div>
       <ol className="board-grid compact-board-grid">
