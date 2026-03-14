@@ -33,11 +33,11 @@ describe("resolveLandingTurn", () => {
     expect(result.metrics.stationPurchases).toBe(1);
   });
 
-  test("charges transport fare based on travelled steps and bankrupts the payer when cash is insufficient", () => {
+  test("uses travelled steps to charge transport fare instead of the station base rent", () => {
     const result = resolveLandingTurn({
       player: {
         id: "p1",
-        cash: 20,
+        cash: 50,
         position: 0,
         status: "active",
         ownedStationIds: []
@@ -66,7 +66,7 @@ describe("resolveLandingTurn", () => {
 
     expect(result.player.status).toBe("bankrupt");
     expect(result.player.cash).toBe(0);
-    expect(result.owner?.cash).toBe(1020);
+    expect(result.owner?.cash).toBe(1050);
     expect(result.metrics.transportFarePayments).toBe(1);
     expect(result.metrics.bankruptcies).toBe(1);
   });
