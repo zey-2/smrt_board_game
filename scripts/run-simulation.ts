@@ -1,8 +1,9 @@
 import {
-  BASELINE_SIMULATION_PRESET,
-  CASH_TILE_VARIANT_PRESET
-} from "../src/game/simulation/presets";
-import { formatSimulationComparison } from "../src/game/simulation/report";
+  buildGameConfigFromGameLengthPreset,
+  GAME_LENGTH_PRESETS
+} from "../src/game/constants/gameLengthPresets";
+import { BASELINE_SIMULATION_PRESET } from "../src/game/simulation/presets";
+import { formatSimulationReport } from "../src/game/simulation/report";
 import { runSimulationBatch } from "../src/game/simulation/runner";
 
 interface CliOptions {
@@ -43,23 +44,18 @@ function parseCliOptions(argv: string[]): CliOptions {
 
 function main() {
   const options = parseCliOptions(process.argv.slice(2));
-  const baseline = runSimulationBatch({
-    preset: BASELINE_SIMULATION_PRESET,
-    gameCount: options.games,
-    seed: options.seed
-  });
-  const variant = runSimulationBatch({
-    preset: CASH_TILE_VARIANT_PRESET,
-    gameCount: options.games,
-    seed: options.seed
-  });
+  const summaries = GAME_LENGTH_PRESETS.map((preset) => ({
+    ...runSimulationBatch({
+      preset: BASELINE_SIMULATION_PRESET,
+      gameCount: options.games,
+      seed: options.seed,
+      playerCount: 2,
+      simulationConfig: buildGameConfigFromGameLengthPreset(preset.id)
+    }),
+    label: preset.label
+  }));
 
-  console.log(
-    formatSimulationComparison({
-      baseline,
-      variant
-    })
-  );
+  console.log(formatSimulationReport(summaries));
 }
 
 main();

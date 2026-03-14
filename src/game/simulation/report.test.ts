@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type { SimulationBatchSummary } from "./runner";
-import { formatSimulationComparison } from "./report";
+import { formatSimulationReport } from "./report";
 
 function createSummary(
   label: string,
@@ -27,17 +27,15 @@ function createSummary(
   };
 }
 
-describe("formatSimulationComparison", () => {
-  test("renders a side-by-side report for baseline and variant summaries", () => {
-    const output = formatSimulationComparison({
-      baseline: createSummary("Baseline", 18.4, 0),
-      variant: createSummary("Cash Tile Variant", 16.9, 42)
-    });
+describe("formatSimulationReport", () => {
+  test("renders classic and timed summaries in one report", () => {
+    const output = formatSimulationReport([
+      createSummary("Classic mode", 236.1, 0),
+      createSummary("20 minutes", 12, 0)
+    ]);
 
-    expect(output).toContain("Baseline");
-    expect(output).toContain("Cash Tile Variant");
+    expect(output).toContain("Classic mode");
+    expect(output).toContain("20 minutes");
     expect(output).toContain("Average rounds");
-    expect(output).toContain("Cash-tile awards");
-    expect(output).toContain("Purchase enables");
   });
 });

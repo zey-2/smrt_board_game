@@ -1,10 +1,5 @@
 import type { SimulationBatchSummary } from "./runner";
 
-interface SimulationComparison {
-  baseline: SimulationBatchSummary;
-  variant: SimulationBatchSummary;
-}
-
 function formatDecimal(value: number): string {
   return value.toFixed(2);
 }
@@ -44,15 +39,10 @@ function formatSummary(summary: SimulationBatchSummary): string[] {
   ];
 }
 
-export function formatSimulationComparison({
-  baseline,
-  variant
-}: SimulationComparison): string {
+export function formatSimulationReport(summaries: SimulationBatchSummary[]): string {
   return [
     "SMRT Monopoly Simulation Report",
     "",
-    ...formatSummary(baseline),
-    "",
-    ...formatSummary(variant)
+    ...summaries.flatMap((summary) => [...formatSummary(summary), ""])
   ].join("\n");
 }

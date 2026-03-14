@@ -1,6 +1,7 @@
 import { calculateNetWorth } from "../rules/economy";
 import { evaluateEndCondition } from "../rules/endConditions";
 import { movePosition } from "../rules/movement";
+import type { EndConditionMode } from "../types";
 import { resolveLandingTurn } from "./engine";
 import { shouldBuyStation } from "./policy";
 import type { PurchasePolicy } from "./policy";
@@ -16,8 +17,15 @@ const DEFAULT_POLICY: PurchasePolicy = {
   safetyThreshold: 200
 };
 
-const DEFAULT_CONFIG = {
-  endCondition: "LAST_PLAYER_STANDING" as const,
+interface SimulationConfig {
+  endCondition: EndConditionMode;
+  fixedRoundLimit: number;
+  targetWealth: number;
+  initialCash: number;
+}
+
+const DEFAULT_CONFIG: SimulationConfig = {
+  endCondition: "LAST_PLAYER_STANDING",
   fixedRoundLimit: 12,
   targetWealth: 8000,
   initialCash: 1500
@@ -30,6 +38,7 @@ interface RunSimulationBatchInput {
   preset: SimulationPreset;
   gameCount: number;
   seed: number;
+  simulationConfig?: SimulationConfig;
   playerCount?: number;
   policy?: PurchasePolicy;
   maxTurnsPerGame?: number;
@@ -70,10 +79,10 @@ function cloneTile(tile: SimulationTile): SimulationTile {
   return tile.type === "cash" ? { ...tile } : { ...tile };
 }
 
-function createPlayers(playerCount: number): SimulationPlayer[] {
+function createPlayers(playerCount: number, simulationConfig: SimulationConfig): SimulationPlayer[] {
   return Array.from({ length: playerCount }, (_, index) => ({
     id: `p${index + 1}`,
-    cash: DEFAULT_CONFIG.initialCash,
+    cash: simulationConfig.initialCash,
     position: 0,
     status: "active",
     ownedStationIds: []
@@ -112,9 +121,14 @@ function getUniqueLeaderId(players: SimulationPlayer[], board: SimulationTile[])
   return ranked[0].id;
 }
 
-function maybeResolveWinner(players: SimulationPlayer[], board: SimulationTile[], round: number): string | null {
+function maybeResolveWinner(
+  players: SimulationPlayer[],
+  board: SimulationTile[],
+  round: number,
+  simulationConfig: SimulationConfig
+): string | null {
   return evaluateEndCondition(
-    DEFAULT_CONFIG.endCondition,
+    simulationConfig.endCondition,
     {
       players: players.map((player) => ({
         id: player.id,
@@ -124,8 +138,8 @@ function maybeResolveWinner(players: SimulationPlayer[], board: SimulationTile[]
       round
     },
     {
-      fixedRoundLimit: DEFAULT_CONFIG.fixedRoundLimit,
-      targetWealth: DEFAULT_CONFIG.targetWealth
+      fixedRoundLimit: simulationConfig.fixedRoundLimit,
+      targetWealth: simulationConfig.targetWealth
     }
   );
 }
@@ -140,13 +154,14 @@ function simulateGame(
   preset: SimulationPreset,
   seed: number,
   playerCount: number,
+  simulationConfig: SimulationConfig,
   policy: PurchasePolicy,
   maxTurnsPerGame: number,
   diceValueProvider?: () => number
 ): SingleGameSummary {
   const random = createSeededRandom(seed);
   const board = preset.board.map(cloneTile);
-  const players = createPlayers(playerCount);
+  const players = createPlayers(playerCount, simulationConfig);
   const tileLandingCounts = createTileLandingCounts(board);
   const pendingCashBoosts = new Map<string, number>();
 
@@ -227,7 +242,7 @@ function simulateGame(
         pendingCashBoosts.set(currentPlayer.id, tile.reward);
       }
 
-      winnerId = maybeResolveWinner(players, board, round);
+      winnerId = maybeResolveWinner(players, board, round, simulationConfig);
       const leaderId = getUniqueLeaderId(players, board);
       if (previousLeaderId && leaderId && previousLeaderId !== leaderId) {
         totalLeadChanges += 1;
@@ -242,7 +257,7 @@ function simulateGame(
     turnIndex = (turnIndex + 1) % players.length;
     if (turnIndex === 0) {
       round += 1;
-      winnerId = maybeResolveWinner(players, board, round);
+      winnerId = maybeResolveWinner(players, board, round, simulationConfig);
       if (winnerId) {
         break;
       }
@@ -268,6 +283,7 @@ function simulateGame(
 
 export function runSimulationBatch(input: RunSimulationBatchInput): SimulationBatchSummary {
   const playerCount = input.playerCount ?? DEFAULT_PLAYER_COUNT;
+  const simulationConfig = input.simulationConfig ?? DEFAULT_CONFIG;
   const policy = input.policy ?? DEFAULT_POLICY;
   const maxTurnsPerGame = input.maxTurnsPerGame ?? MAX_TURNS_PER_GAME;
   const seatWinCounts = Array.from({ length: playerCount }, () => 0);
@@ -288,6 +304,7 @@ export function runSimulationBatch(input: RunSimulationBatchInput): SimulationBa
       input.preset,
       input.seed + gameIndex,
       playerCount,
+      simulationConfig,
       policy,
       maxTurnsPerGame,
       input.diceValueProvider

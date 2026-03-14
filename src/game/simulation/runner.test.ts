@@ -62,4 +62,23 @@ describe("runSimulationBatch", () => {
     expect(baseline.totalCashTileAwards).toBe(0);
     expect(variant.totalCashTileAwards).toBeGreaterThan(0);
   });
+
+  test("stops at the configured fixed round limit when using timed mode", () => {
+    const result = runSimulationBatch({
+      preset: BASELINE_SIMULATION_PRESET,
+      gameCount: 1,
+      seed: 20260314,
+      playerCount: 2,
+      simulationConfig: {
+        endCondition: "FIXED_ROUNDS",
+        fixedRoundLimit: 2,
+        targetWealth: 8000,
+        initialCash: 1500
+      },
+      maxTurnsPerGame: 100,
+      diceValueProvider: () => 1
+    });
+
+    expect(result.averageRounds).toBe(2);
+  });
 });
