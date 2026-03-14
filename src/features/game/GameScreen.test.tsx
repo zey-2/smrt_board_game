@@ -1,9 +1,21 @@
-import { render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { initialState } from "../../game/state/initialState";
 import { GameScreen } from "./GameScreen";
 import "../../styles.css";
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+async function advancePlaybackFrames(frameCount: number, frameDuration = 300) {
+  for (let index = 0; index < frameCount; index += 1) {
+    await act(async () => {
+      vi.advanceTimersByTime(frameDuration);
+    });
+  }
+}
 
 describe("GameScreen", () => {
   test("allows current player to roll and updates phase", async () => {
@@ -74,5 +86,39 @@ describe("GameScreen", () => {
     expect(exitActions).toBeTruthy();
     expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Abort" })).toBeInTheDocument();
+  });
+
+  test("shows the active player on an intermediate station before the destination", async () => {
+    vi.useFakeTimers();
+    const { container } = render(<GameScreen initial={initialState} diceValueProvider={() => 3} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Roll Dice" }));
+
+    const boardPanel = container.querySelector(".game-board-panel");
+
+    expect(boardPanel).toBeTruthy();
+    const queenstownTile = within(boardPanel as HTMLElement).getByText("Queenstown").closest("li");
+    expect(queenstownTile).toBeTruthy();
+    expect(within(boardPanel as HTMLElement).getAllByText("Player 1")).toHaveLength(1);
+    expect(within(queenstownTile as HTMLElement).queryByText("Player 1")).not.toBeInTheDocument();
+
+    await advancePlaybackFrames(4);
+
+    expect(within(queenstownTile as HTMLElement).getByText("Player 1")).toBeInTheDocument();
+  });
+
+  test("waits for movement playback before showing tile resolution actions", async () => {
+    vi.useFakeTimers();
+    render(<GameScreen initial={initialState} diceValueProvider={() => 2} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Roll Dice" }));
+
+    expect(screen.queryByRole("button", { name: "Buy Station" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Skip Purchase" })).not.toBeInTheDocument();
+
+    await advancePlaybackFrames(3);
+
+    expect(screen.getByRole("button", { name: "Buy Station" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Skip Purchase" })).toBeInTheDocument();
   });
 });

@@ -5,6 +5,7 @@ interface TurnControlsProps {
   state: GameState;
   onDispatch: (action: GameAction) => void;
   diceValueProvider: () => number;
+  isMovementInProgress: boolean;
   onExitWithSave: () => void;
   onExitWithoutSave: () => void;
 }
@@ -13,13 +14,15 @@ export function TurnControls({
   state,
   onDispatch,
   diceValueProvider,
+  isMovementInProgress,
   onExitWithSave,
   onExitWithoutSave
 }: TurnControlsProps) {
   const player = state.players[state.turnIndex];
   const tile = state.board[player.position];
   const canAfford = player.cash >= tile.price;
-  const canBuy = state.phase === "resolve_tile" && tile.ownerId === null && canAfford;
+  const showResolveActions = state.phase === "resolve_tile" && !isMovementInProgress;
+  const canBuy = showResolveActions && tile.ownerId === null && canAfford;
 
   return (
     <section className="card control-panel">
@@ -50,7 +53,7 @@ export function TurnControls({
           </button>
         ) : null}
 
-        {state.phase === "resolve_tile" ? (
+        {showResolveActions ? (
           <>
             <button type="button" onClick={() => onDispatch({ type: "BUY_STATION" })} disabled={!canBuy}>
               Buy Station

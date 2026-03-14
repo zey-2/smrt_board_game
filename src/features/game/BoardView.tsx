@@ -7,9 +7,13 @@ import {
 
 interface BoardViewProps {
   state: GameState;
+  animatedMovement?: {
+    playerId: string;
+    position: number;
+  } | null;
 }
 
-export function BoardView({ state }: BoardViewProps) {
+export function BoardView({ state, animatedMovement = null }: BoardViewProps) {
   return (
     <section className="card game-board-panel">
       <div className="board-panel-header">
@@ -18,7 +22,13 @@ export function BoardView({ state }: BoardViewProps) {
       </div>
       <ol className="board-grid compact-board-grid">
         {state.board.map((tile, index) => {
-          const playersHere = state.players.filter((player) => player.position === index);
+          const playersHere = state.players.filter((player) => {
+            if (animatedMovement?.playerId === player.id) {
+              return animatedMovement.position === index;
+            }
+
+            return player.position === index;
+          });
           const lineThemeClass = getLineThemeClass(tile.line);
           const lineLabel = getLineLabel(tile.line);
           return (

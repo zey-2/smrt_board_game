@@ -1,5 +1,6 @@
 import { useEffect, useReducer, useState } from "react";
 import { calculateNetWorth } from "../../game/rules/economy";
+import { getMovementPath } from "../../game/rules/movement";
 import { saveGameState } from "../../game/persistence/localSave";
 import type { GameState } from "../../game/types";
 import type { GameAction } from "../../game/state/actions";
@@ -25,12 +26,66 @@ export function GameScreen({
 }: GameScreenProps) {
   const [state, dispatch] = useReducer(reducer, initial);
   const [showPassOverlay, setShowPassOverlay] = useState(false);
+  const [movementPlayback, setMovementPlayback] = useState<{
+    playerId: string;
+    path: number[];
+    stepIndex: number;
+  } | null>(null);
+
+  const isMovementInProgress = movementPlayback !== null;
 
   useEffect(() => {
     saveGameState(state);
   }, [state]);
 
+  useEffect(() => {
+    if (!movementPlayback) {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setMovementPlayback((currentPlayback) => {
+        if (!currentPlayback) {
+          return null;
+        }
+
+        if (currentPlayback.stepIndex >= currentPlayback.path.length - 1) {
+          return null;
+        }
+
+        return {
+          ...currentPlayback,
+          stepIndex: currentPlayback.stepIndex + 1
+        };
+      });
+    }, 250);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [movementPlayback]);
+
   const handleDispatch = (action: GameAction) => {
+    if (action.type === "ROLL_DICE") {
+      const currentPlayer = state.players[state.turnIndex];
+
+      if (state.phase === "roll" && currentPlayer && currentPlayer.status === "active") {
+        const path = getMovementPath(
+          currentPlayer.position,
+          action.payload.value,
+          state.board.length
+        );
+
+        setMovementPlayback(
+          path.length > 0
+            ? {
+                playerId: currentPlayer.id,
+                path,
+                stepIndex: 0
+              }
+            : null
+        );
+      }
+    }
+
     dispatch(action);
     if (action.type === "END_TURN") {
       setShowPassOverlay(true);
@@ -57,7 +112,17 @@ export function GameScreen({
   return (
     <section className="game-layout">
       <div className="game-viewport">
-        <BoardView state={state} />
+        <BoardView
+          state={state}
+          animatedMovement={
+            movementPlayback
+              ? {
+                  playerId: movementPlayback.playerId,
+                  position: movementPlayback.path[movementPlayback.stepIndex]
+                }
+              : null
+          }
+        />
         <aside className="game-sidebar">
           <header className="card map-status map-status-compact">
             <h2>SMRT Monopoly</h2>
@@ -70,6 +135,7 @@ export function GameScreen({
             state={state}
             onDispatch={handleDispatch}
             diceValueProvider={diceValueProvider}
+            isMovementInProgress={isMovementInProgress}
             onExitWithSave={() => onExitWithSave(state)}
             onExitWithoutSave={onExitWithoutSave}
           />
