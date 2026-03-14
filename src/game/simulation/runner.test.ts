@@ -131,7 +131,7 @@ describe("runSimulationBatch", () => {
     expect(result.totalTies).toBe(1);
   });
 
-  test("uses the rolled die value as travel steps for transport fare", () => {
+  test("uses the exact rolled die value as travel steps for transport fare", () => {
     const result = runSimulationBatch({
       preset: SINGLE_STATION_PRESET,
       gameCount: 1,
@@ -141,7 +141,7 @@ describe("runSimulationBatch", () => {
         endCondition: "FIXED_ROUNDS",
         fixedRoundLimit: 1,
         targetWealth: 8000,
-        initialCash: 50,
+        initialCash: 90,
         transportFareRate: 25
       },
       policy: {
@@ -152,6 +152,6 @@ describe("runSimulationBatch", () => {
     });
 
     expect(result.totalTransportFarePayments).toBe(1);
-    expect(result.totalBankruptcies).toBe(1);
+    expect(result.totalBankruptcies).toBe(0);
   });
 });
