@@ -2,14 +2,20 @@ import { KEY_STATIONS_PRESET } from "../constants/stations";
 import { getRandomDogBreedNames } from "../defaultPlayerNames";
 import type { GameConfig, GameState, Player } from "../types";
 import { PLAYER_COLOR_OPTIONS, PLAYER_ICON_OPTIONS } from "../../features/players/playerAppearance";
+import {
+  DEFAULT_INITIAL_CASH,
+  DEFAULT_TARGET_WEALTH,
+  DEFAULT_TRANSPORT_FARE_RATE
+} from "../constants/economyDefaults";
 
 const DEFAULT_CONFIG: GameConfig = {
   mode: "CLASSIC",
   endCondition: "LAST_PLAYER_STANDING",
   fixedRoundLimit: 12,
   timeLimitSeconds: null,
-  targetWealth: 8000,
-  initialCash: 1500
+  targetWealth: DEFAULT_TARGET_WEALTH,
+  initialCash: DEFAULT_INITIAL_CASH,
+  transportFareRate: DEFAULT_TRANSPORT_FARE_RATE
 };
 
 function getInitialRemainingTimeMs(config: GameConfig): number | null {
@@ -22,7 +28,7 @@ function createDefaultPlayers(): Player[] {
     name,
     iconId: PLAYER_ICON_OPTIONS[index]?.id ?? PLAYER_ICON_OPTIONS[0].id,
     colorId: PLAYER_COLOR_OPTIONS[index]?.id ?? PLAYER_COLOR_OPTIONS[0].id,
-    cash: 1500,
+    cash: DEFAULT_INITIAL_CASH,
     position: 0,
     ownedStationIds: [],
     status: "active"

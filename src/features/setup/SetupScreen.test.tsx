@@ -1,6 +1,11 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test, vi } from "vitest";
+import {
+  DEFAULT_INITIAL_CASH,
+  DEFAULT_TARGET_WEALTH,
+  DEFAULT_TRANSPORT_FARE_RATE
+} from "../../game/constants/economyDefaults";
 import { SetupScreen } from "./SetupScreen";
 import { validateAndBuildSetup } from "./setupValidation";
 
@@ -27,7 +32,10 @@ describe("SetupScreen", () => {
       mode: "TIMED",
       endCondition: "LAST_PLAYER_STANDING",
       timeLimitSeconds: 1200,
-      fixedRoundLimit: 12
+      fixedRoundLimit: 12,
+      initialCash: DEFAULT_INITIAL_CASH,
+      targetWealth: DEFAULT_TARGET_WEALTH,
+      transportFareRate: DEFAULT_TRANSPORT_FARE_RATE
     });
   });
 
@@ -71,7 +79,10 @@ describe("SetupScreen", () => {
       mode: "FIXED_ROUNDS",
       endCondition: "FIXED_ROUNDS",
       timeLimitSeconds: null,
-      fixedRoundLimit: 9
+      fixedRoundLimit: 9,
+      initialCash: DEFAULT_INITIAL_CASH,
+      targetWealth: DEFAULT_TARGET_WEALTH,
+      transportFareRate: DEFAULT_TRANSPORT_FARE_RATE
     });
   });
 
@@ -166,10 +177,11 @@ describe("SetupScreen", () => {
       ],
       mode: "CLASSIC",
       endCondition: "LAST_PLAYER_STANDING",
-      initialCash: 1500,
+      initialCash: DEFAULT_INITIAL_CASH,
       timeLimitSeconds: null,
       fixedRoundLimit: 12,
-      targetWealth: 8000
+      targetWealth: DEFAULT_TARGET_WEALTH,
+      transportFareRate: DEFAULT_TRANSPORT_FARE_RATE
     });
 
     expect(result.error).toBeNull();
@@ -187,10 +199,11 @@ describe("SetupScreen", () => {
       ],
       mode: "CLASSIC",
       endCondition: "LAST_PLAYER_STANDING",
-      initialCash: 1500,
+      initialCash: DEFAULT_INITIAL_CASH,
       timeLimitSeconds: null,
       fixedRoundLimit: 12,
-      targetWealth: 8000
+      targetWealth: DEFAULT_TARGET_WEALTH,
+      transportFareRate: DEFAULT_TRANSPORT_FARE_RATE
     });
 
     expect(result.error).toBe("Each player needs a unique icon and background colour combination");

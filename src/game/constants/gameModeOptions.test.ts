@@ -1,5 +1,10 @@
 import { describe, expect, test } from "vitest";
 import {
+  DEFAULT_INITIAL_CASH,
+  DEFAULT_TARGET_WEALTH,
+  DEFAULT_TRANSPORT_FARE_RATE
+} from "./economyDefaults";
+import {
   DEFAULT_FIXED_ROUND_OPTION_ID,
   DEFAULT_GAME_MODE_ID,
   DEFAULT_TIMED_MODE_OPTION_ID,
@@ -42,7 +47,10 @@ describe("gameModeOptions", () => {
       mode: "CLASSIC",
       endCondition: "LAST_PLAYER_STANDING",
       timeLimitSeconds: null,
-      fixedRoundLimit: 12
+      fixedRoundLimit: 12,
+      initialCash: DEFAULT_INITIAL_CASH,
+      targetWealth: DEFAULT_TARGET_WEALTH,
+      transportFareRate: DEFAULT_TRANSPORT_FARE_RATE
     });
 
     expect(
@@ -54,7 +62,10 @@ describe("gameModeOptions", () => {
       mode: "TIMED",
       endCondition: "LAST_PLAYER_STANDING",
       timeLimitSeconds: 1200,
-      fixedRoundLimit: 12
+      fixedRoundLimit: 12,
+      initialCash: DEFAULT_INITIAL_CASH,
+      targetWealth: DEFAULT_TARGET_WEALTH,
+      transportFareRate: DEFAULT_TRANSPORT_FARE_RATE
     });
 
     expect(
@@ -66,7 +77,10 @@ describe("gameModeOptions", () => {
       mode: "FIXED_ROUNDS",
       endCondition: "FIXED_ROUNDS",
       timeLimitSeconds: null,
-      fixedRoundLimit: 9
+      fixedRoundLimit: 9,
+      initialCash: DEFAULT_INITIAL_CASH,
+      targetWealth: DEFAULT_TARGET_WEALTH,
+      transportFareRate: DEFAULT_TRANSPORT_FARE_RATE
     });
   });
 });

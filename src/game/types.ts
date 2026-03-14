@@ -33,6 +33,7 @@ export interface GameConfig {
   timeLimitSeconds: number | null;
   targetWealth: number;
   initialCash: number;
+  transportFareRate: number;
 }
 
 export interface GameState {

@@ -1,4 +1,9 @@
 import type { EndConditionMode, GameConfig, Player } from "../../game/types";
+import {
+  DEFAULT_INITIAL_CASH,
+  DEFAULT_TARGET_WEALTH,
+  DEFAULT_TRANSPORT_FARE_RATE
+} from "../../game/constants/economyDefaults";
 import { PLAYER_COLOR_OPTIONS, PLAYER_ICON_OPTIONS } from "../players/playerAppearance";
 
 export interface SetupPlayerDraft {
@@ -16,6 +21,7 @@ export interface SetupDraft {
   timeLimitSeconds: number | null;
   fixedRoundLimit: number;
   targetWealth: number;
+  transportFareRate: number;
 }
 
 export interface SetupResult {
@@ -68,7 +74,8 @@ export function validateAndBuildSetup(draft: SetupDraft): SetupResult {
     fixedRoundLimit: draft.fixedRoundLimit,
     timeLimitSeconds: draft.timeLimitSeconds,
     targetWealth: draft.targetWealth,
-    initialCash: draft.initialCash
+    initialCash: draft.initialCash,
+    transportFareRate: draft.transportFareRate
   };
 
   const players: Player[] = draftPlayers.map((player, index) => ({
@@ -91,7 +98,8 @@ function createDefaultConfig(endCondition: EndConditionMode): GameConfig {
     endCondition,
     fixedRoundLimit: 12,
     timeLimitSeconds: null,
-    targetWealth: 8000,
-    initialCash: 1500
+    targetWealth: DEFAULT_TARGET_WEALTH,
+    initialCash: DEFAULT_INITIAL_CASH,
+    transportFareRate: DEFAULT_TRANSPORT_FARE_RATE
   };
 }

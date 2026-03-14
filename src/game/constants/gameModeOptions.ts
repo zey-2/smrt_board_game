@@ -1,4 +1,9 @@
 import type { GameConfig } from "../types";
+import {
+  DEFAULT_INITIAL_CASH,
+  DEFAULT_TARGET_WEALTH,
+  DEFAULT_TRANSPORT_FARE_RATE
+} from "./economyDefaults";
 
 export type GameModeId = "CLASSIC" | "TIMED" | "FIXED_ROUNDS";
 export type TimedModeOptionId = "MINUTES_10" | "MINUTES_15" | "MINUTES_20" | "MINUTES_30";
@@ -143,8 +148,9 @@ export function buildGameConfigFromModeSelection({
       endCondition: "LAST_PLAYER_STANDING",
       fixedRoundLimit: defaultRoundLimit,
       timeLimitSeconds: timedOption.timeLimitSeconds,
-      targetWealth: 8000,
-      initialCash: 1500
+      targetWealth: DEFAULT_TARGET_WEALTH,
+      initialCash: DEFAULT_INITIAL_CASH,
+      transportFareRate: DEFAULT_TRANSPORT_FARE_RATE
     };
   }
 
@@ -156,8 +162,9 @@ export function buildGameConfigFromModeSelection({
       endCondition: "FIXED_ROUNDS",
       fixedRoundLimit: fixedRoundOption.fixedRoundLimit,
       timeLimitSeconds: null,
-      targetWealth: 8000,
-      initialCash: 1500
+      targetWealth: DEFAULT_TARGET_WEALTH,
+      initialCash: DEFAULT_INITIAL_CASH,
+      transportFareRate: DEFAULT_TRANSPORT_FARE_RATE
     };
   }
 
@@ -166,7 +173,8 @@ export function buildGameConfigFromModeSelection({
     endCondition: "LAST_PLAYER_STANDING",
     fixedRoundLimit: defaultRoundLimit,
     timeLimitSeconds: null,
-    targetWealth: 8000,
-    initialCash: 1500
+    targetWealth: DEFAULT_TARGET_WEALTH,
+    initialCash: DEFAULT_INITIAL_CASH,
+    transportFareRate: DEFAULT_TRANSPORT_FARE_RATE
   };
 }

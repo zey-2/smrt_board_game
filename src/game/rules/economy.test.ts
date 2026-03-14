@@ -1,5 +1,11 @@
 import { describe, expect, test } from "vitest";
-import { buyStation, calculateNetWorth, payRent } from "./economy";
+import {
+  buyStation,
+  calculateNetWorth,
+  calculateTransportFare,
+  payRent,
+  payTransportFare
+} from "./economy";
 
 describe("buyStation", () => {
   test("prevents buying when cash is insufficient", () => {
@@ -34,6 +40,26 @@ describe("payRent", () => {
     expect(result.payer.status).toBe("bankrupt");
     expect(result.payer.cash).toBe(0);
     expect(result.owner.cash).toBe(420);
+  });
+});
+
+describe("calculateTransportFare", () => {
+  test("multiplies travelled steps by the shared fare rate", () => {
+    expect(calculateTransportFare(4, 25)).toBe(100);
+  });
+});
+
+describe("payTransportFare", () => {
+  test("transfers the full fare to the destination owner when the payer has enough cash", () => {
+    const result = payTransportFare(
+      { id: "payer", cash: 240, status: "active" },
+      { id: "owner", cash: 500, status: "active" },
+      120
+    );
+
+    expect(result.payer.cash).toBe(120);
+    expect(result.owner.cash).toBe(620);
+    expect(result.payer.status).toBe("active");
   });
 });
 

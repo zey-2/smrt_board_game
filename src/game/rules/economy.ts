@@ -56,6 +56,18 @@ export function payRent(
   };
 }
 
+export function calculateTransportFare(steps: number, rate: number): number {
+  return steps * rate;
+}
+
+export function payTransportFare(
+  payer: EconomyPlayer,
+  owner: EconomyPlayer,
+  fare: number
+) {
+  return payRent(payer, owner, fare);
+}
+
 export function calculateNetWorth(cash: number, assetValues: number[]): number {
   return cash + assetValues.reduce((sum, value) => sum + value, 0);
 }
