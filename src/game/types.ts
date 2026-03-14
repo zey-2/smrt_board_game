@@ -18,6 +18,8 @@ export interface StationTile {
 export interface Player {
   id: string;
   name: string;
+  iconId: string;
+  colorId: string;
   cash: number;
   position: number;
   ownedStationIds: string[];

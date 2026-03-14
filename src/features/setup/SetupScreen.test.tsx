@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { SetupScreen } from "./SetupScreen";
+import { validateAndBuildSetup } from "./setupValidation";
 
 describe("SetupScreen", () => {
   afterEach(() => {
@@ -58,5 +59,39 @@ describe("SetupScreen", () => {
     await user.click(startButton);
     expect(onStart).toHaveBeenCalledTimes(1);
     expect(onStart.mock.calls[0][0].config.endCondition).toBe("FIXED_ROUNDS");
+  });
+
+  test("builds players with selected token appearance", () => {
+    const result = validateAndBuildSetup({
+      players: [
+        { name: "Beagle", iconId: "circle", colorId: "blue" },
+        { name: "Corgi", iconId: "square", colorId: "red" }
+      ],
+      endCondition: "LAST_PLAYER_STANDING",
+      initialCash: 1500,
+      fixedRoundLimit: 12,
+      targetWealth: 8000
+    });
+
+    expect(result.error).toBeNull();
+    expect(result.players[0]).toMatchObject({
+      iconId: "circle",
+      colorId: "blue"
+    });
+  });
+
+  test("rejects duplicate token combinations", () => {
+    const result = validateAndBuildSetup({
+      players: [
+        { name: "Beagle", iconId: "circle", colorId: "blue" },
+        { name: "Corgi", iconId: "circle", colorId: "blue" }
+      ],
+      endCondition: "LAST_PLAYER_STANDING",
+      initialCash: 1500,
+      fixedRoundLimit: 12,
+      targetWealth: 8000
+    });
+
+    expect(result.error).toBe("Each player needs a unique icon and background colour combination");
   });
 });
