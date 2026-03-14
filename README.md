@@ -2,6 +2,8 @@
 
 Monopoly-like digital board game inspired by key stations on the Singapore SMRT network.
 
+![SMRT Monopoly gameplay screenshot](./game.png)
+
 ## V1 Scope
 
 - 2-4 players
