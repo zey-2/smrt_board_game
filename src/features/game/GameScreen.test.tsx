@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { initialState } from "../../game/state/initialState";
+import { createGameState, initialState } from "../../game/state/initialState";
 import { GameScreen } from "./GameScreen";
 import "../../styles.css";
 
@@ -17,6 +17,15 @@ async function advancePlaybackFrames(frameCount: number, frameDuration = 300) {
   }
 }
 
+function createTimedState() {
+  return createGameState(initialState.players, {
+    ...initialState.config,
+    mode: "TIMED",
+    timeLimitSeconds: 600,
+    endCondition: "LAST_PLAYER_STANDING"
+  });
+}
+
 describe("GameScreen", () => {
   test("allows current player to roll and updates phase", async () => {
     const user = userEvent.setup();
@@ -25,6 +34,32 @@ describe("GameScreen", () => {
     expect(screen.getByText("Phase: roll")).toBeInTheDocument();
     await user.click(screen.getByRole("button", { name: "Roll Dice" }));
     expect(screen.getByText("Phase: resolve_tile")).toBeInTheDocument();
+  });
+
+  test("shows a live time-left countdown in timed mode", () => {
+    vi.useFakeTimers();
+
+    render(<GameScreen initial={createTimedState()} />);
+
+    expect(screen.getByText("Time left: 10:00")).toBeInTheDocument();
+  });
+
+  test("ticks the countdown while the live game screen is mounted", async () => {
+    vi.useFakeTimers();
+
+    render(<GameScreen initial={createTimedState()} />);
+
+    await act(async () => {
+      vi.advanceTimersByTime(3000);
+    });
+
+    expect(screen.getByText("Time left: 09:57")).toBeInTheDocument();
+  });
+
+  test("does not show the countdown in classic mode", () => {
+    render(<GameScreen initial={initialState} />);
+
+    expect(screen.queryByText(/Time left:/i)).not.toBeInTheDocument();
   });
 
   test("renders line badges on station tiles", () => {

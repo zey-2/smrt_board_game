@@ -17,6 +17,18 @@ interface GameScreenProps {
   onExitWithoutSave?: () => void;
 }
 
+function formatRemainingTime(remainingTimeMs: number | null) {
+  if (remainingTimeMs === null) {
+    return null;
+  }
+
+  const totalSeconds = Math.max(0, Math.floor(remainingTimeMs / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+
+  return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+}
+
 export function GameScreen({
   initial,
   diceValueProvider = () => Math.floor(Math.random() * 6) + 1,
@@ -36,6 +48,22 @@ export function GameScreen({
   useEffect(() => {
     saveGameState(state);
   }, [state]);
+
+  useEffect(() => {
+    if (state.config.mode !== "TIMED" || state.phase === "completed") {
+      return undefined;
+    }
+
+    let lastTickAt = Date.now();
+    const intervalId = window.setInterval(() => {
+      const now = Date.now();
+      const elapsedMs = now - lastTickAt;
+      lastTickAt = now;
+      dispatch({ type: "TICK_TIMER", payload: { elapsedMs } });
+    }, 250);
+
+    return () => window.clearInterval(intervalId);
+  }, [state.config.mode, state.phase]);
 
   useEffect(() => {
     if (!movementPlayback) {
@@ -108,6 +136,8 @@ export function GameScreen({
   const isCompleted = state.phase === "completed";
   const isDraw = isCompleted && state.winnerId === null;
   const winnerName = state.players.find((player) => player.id === state.winnerId)?.name ?? null;
+  const remainingTimeLabel =
+    state.config.mode === "TIMED" ? formatRemainingTime(state.remainingTimeMs) : null;
 
   return (
     <section className="game-layout">
@@ -130,6 +160,7 @@ export function GameScreen({
               <div className="status-pills">
                 <span>Round: {state.round}</span>
                 <span>Phase: {state.phase}</span>
+                {remainingTimeLabel ? <span>Time left: {remainingTimeLabel}</span> : null}
               </div>
             </div>
             <div className="inline-actions map-status-actions">
