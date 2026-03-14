@@ -9,8 +9,6 @@ interface TurnControlsProps {
   showTurnHandoff: boolean;
   nextPlayerName: string;
   onStartTurn: () => void;
-  onExitWithSave: () => void;
-  onExitWithoutSave: () => void;
 }
 
 export function TurnControls({
@@ -20,9 +18,7 @@ export function TurnControls({
   isMovementInProgress,
   showTurnHandoff,
   nextPlayerName,
-  onStartTurn,
-  onExitWithSave,
-  onExitWithoutSave
+  onStartTurn
 }: TurnControlsProps) {
   const player = state.players[state.turnIndex];
   const tile = state.board[player.position];
@@ -88,14 +84,6 @@ export function TurnControls({
           </div>
         </>
       )}
-      <div className="inline-actions exit-actions">
-        <button type="button" onClick={onExitWithSave}>
-          Save
-        </button>
-        <button type="button" onClick={onExitWithoutSave}>
-          Abort
-        </button>
-      </div>
       {state.pendingMessage ? <p className="info-text">{state.pendingMessage}</p> : null}
     </section>
   );

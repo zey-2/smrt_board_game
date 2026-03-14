@@ -107,14 +107,18 @@ describe("GameScreen", () => {
     ).toBeInTheDocument();
   });
 
-  test("renders exit actions in a separate control row", () => {
+  test("renders save and abort inside the status card instead of turn controls", () => {
     const { container } = render(<GameScreen initial={initialState} />);
 
-    const exitActions = container.querySelector(".control-panel .exit-actions");
+    const statusCard = container.querySelector(".map-status");
+    const controlPanel = container.querySelector(".control-panel");
 
-    expect(exitActions).toBeTruthy();
-    expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Abort" })).toBeInTheDocument();
+    expect(statusCard).toBeTruthy();
+    expect(controlPanel).toBeTruthy();
+    expect(within(statusCard as HTMLElement).getByRole("button", { name: "Save" })).toBeInTheDocument();
+    expect(within(statusCard as HTMLElement).getByRole("button", { name: "Abort" })).toBeInTheDocument();
+    expect(within(controlPanel as HTMLElement).queryByRole("button", { name: "Save" })).not.toBeInTheDocument();
+    expect(within(controlPanel as HTMLElement).queryByRole("button", { name: "Abort" })).not.toBeInTheDocument();
   });
 
   test("shows the active player on an intermediate station before the destination", async () => {

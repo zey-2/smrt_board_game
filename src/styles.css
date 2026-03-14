@@ -270,20 +270,30 @@ select:focus-visible {
 }
 
 .map-status {
-  align-items: center;
+  align-items: flex-start;
   border-top: 8px solid var(--line-nsl);
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   gap: 12px;
+  justify-content: space-between;
 }
 
 .map-status-compact {
   padding: 12px 14px;
 }
 
+.map-status-main {
+  display: grid;
+  gap: 8px;
+}
+
 .map-status-compact h2 {
   font-size: 1.1rem;
   margin: 0;
+}
+
+.map-status-actions {
+  margin-left: auto;
 }
 
 .status-pills {
@@ -298,6 +308,17 @@ select:focus-visible {
   font-size: 13px;
   font-weight: 700;
   padding: 4px 10px;
+}
+
+@media (max-width: 640px) {
+  .map-status-actions {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .map-status-actions button {
+    flex: 1 1 0;
+  }
 }
 
 .game-board-panel {
