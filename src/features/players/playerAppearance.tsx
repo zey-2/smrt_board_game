@@ -51,10 +51,10 @@ export const PLAYER_ICON_OPTIONS: PlayerIconOption[] = [
 ];
 
 export const PLAYER_COLOR_OPTIONS: PlayerColorOption[] = [
-  { id: "blue", label: "Blue", background: "#1f6feb", foreground: "#ffffff" },
-  { id: "red", label: "Red", background: "#cf222e", foreground: "#ffffff" },
-  { id: "green", label: "Green", background: "#1a7f37", foreground: "#ffffff" },
-  { id: "gold", label: "Gold", background: "#bf8700", foreground: "#ffffff" }
+  { id: "navy", label: "Navy", background: "#1e3a5f", foreground: "#ffffff" },
+  { id: "purple", label: "Purple", background: "#7c3aed", foreground: "#ffffff" },
+  { id: "pink", label: "Pink", background: "#ec4899", foreground: "#ffffff" },
+  { id: "cyan", label: "Cyan", background: "#0891b2", foreground: "#ffffff" }
 ];
 
 export function getPlayerIconOption(iconId: string) {

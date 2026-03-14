@@ -65,9 +65,9 @@ describe("SetupScreen", () => {
     render(<SetupScreen onStart={() => undefined} />);
 
     expect(screen.getByLabelText("Player 1 icon Circle")).toBeChecked();
-    expect(screen.getByLabelText("Player 1 background colour Blue")).toBeChecked();
+    expect(screen.getByLabelText("Player 1 background colour Navy")).toBeChecked();
     expect(screen.getByLabelText("Player 2 icon Square")).toBeChecked();
-    expect(screen.getByLabelText("Player 2 background colour Red")).toBeChecked();
+    expect(screen.getByLabelText("Player 2 background colour Purple")).toBeChecked();
   });
 
   test("uses the selected icon and background colour when starting the game", async () => {
@@ -76,13 +76,13 @@ describe("SetupScreen", () => {
     render(<SetupScreen onStart={onStart} />);
 
     await user.click(screen.getByLabelText("Player 1 icon Triangle"));
-    await user.click(screen.getByLabelText("Player 1 background colour Gold"));
+    await user.click(screen.getByLabelText("Player 1 background colour Cyan"));
     await user.click(screen.getByRole("button", { name: "Start Game" }));
 
     expect(onStart).toHaveBeenCalledTimes(1);
     expect(onStart.mock.calls[0][0].players[0]).toMatchObject({
       iconId: "triangle",
-      colorId: "gold"
+      colorId: "cyan"
     });
   });
 
@@ -92,7 +92,7 @@ describe("SetupScreen", () => {
     render(<SetupScreen onStart={onStart} />);
 
     await user.click(screen.getByLabelText("Player 2 icon Circle"));
-    await user.click(screen.getByLabelText("Player 2 background colour Blue"));
+    await user.click(screen.getByLabelText("Player 2 background colour Navy"));
     await user.click(screen.getByRole("button", { name: "Start Game" }));
 
     expect(onStart).not.toHaveBeenCalled();
@@ -104,8 +104,8 @@ describe("SetupScreen", () => {
   test("builds players with selected token appearance", () => {
     const result = validateAndBuildSetup({
       players: [
-        { name: "Beagle", iconId: "circle", colorId: "blue" },
-        { name: "Corgi", iconId: "square", colorId: "red" }
+        { name: "Beagle", iconId: "circle", colorId: "navy" },
+        { name: "Corgi", iconId: "square", colorId: "purple" }
       ],
       endCondition: "LAST_PLAYER_STANDING",
       initialCash: 1500,
@@ -116,15 +116,15 @@ describe("SetupScreen", () => {
     expect(result.error).toBeNull();
     expect(result.players[0]).toMatchObject({
       iconId: "circle",
-      colorId: "blue"
+      colorId: "navy"
     });
   });
 
   test("rejects duplicate token combinations", () => {
     const result = validateAndBuildSetup({
       players: [
-        { name: "Beagle", iconId: "circle", colorId: "blue" },
-        { name: "Corgi", iconId: "circle", colorId: "blue" }
+        { name: "Beagle", iconId: "circle", colorId: "navy" },
+        { name: "Corgi", iconId: "circle", colorId: "navy" }
       ],
       endCondition: "LAST_PLAYER_STANDING",
       initialCash: 1500,
