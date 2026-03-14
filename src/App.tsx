@@ -4,7 +4,7 @@ import { createGameState } from "./game/state/initialState";
 import type { GameState } from "./game/types";
 import { GameScreen } from "./features/game/GameScreen";
 import { SetupScreen, type SetupPayload } from "./features/setup/SetupScreen";
-import smrtLogo from "./assets/smrt/smrt-logo.svg";
+import smrtCorporateLogo from "./assets/smrt/smrt-corporate-logo.jpg";
 
 type AppMode = "setup" | "game";
 
@@ -29,7 +29,7 @@ export default function App() {
   return (
     <main className="app-shell map-theme-shell">
       <header className="title-banner card">
-        <img src={smrtLogo} alt="SMRT" className="smrt-logo" />
+        <img src={smrtCorporateLogo} alt="SMRT" className="smrt-logo" />
         <div>
           <h1>SMRT Monopoly</h1>
           <p>Transit-map inspired property strategy</p>

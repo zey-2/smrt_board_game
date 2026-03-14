@@ -68,11 +68,11 @@ body {
 }
 
 .smrt-logo {
-  background: #fff;
-  border-radius: 12px;
-  border: 1px solid var(--panel-stroke);
-  height: 58px;
+  display: block;
+  height: 72px;
+  object-fit: contain;
   width: auto;
+  max-width: min(100%, 188px);
 }
 
 .setup-card {
@@ -346,6 +346,11 @@ select:focus-visible {
   .title-banner {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .smrt-logo {
+    height: 64px;
+    max-width: 172px;
   }
 }
 
