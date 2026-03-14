@@ -27,8 +27,10 @@ export interface Player {
 }
 
 export interface GameConfig {
+  mode: "CLASSIC" | "TIMED" | "FIXED_ROUNDS";
   endCondition: EndConditionMode;
   fixedRoundLimit: number;
+  timeLimitSeconds: number | null;
   targetWealth: number;
   initialCash: number;
 }

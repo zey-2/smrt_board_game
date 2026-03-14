@@ -10,8 +10,10 @@ export interface SetupPlayerDraft {
 export interface SetupDraft {
   names?: string[];
   players?: SetupPlayerDraft[];
+  mode: GameConfig["mode"];
   endCondition: EndConditionMode;
   initialCash: number;
+  timeLimitSeconds: number | null;
   fixedRoundLimit: number;
   targetWealth: number;
 }
@@ -61,8 +63,10 @@ export function validateAndBuildSetup(draft: SetupDraft): SetupResult {
   }
 
   const config: GameConfig = {
+    mode: draft.mode,
     endCondition: draft.endCondition,
     fixedRoundLimit: draft.fixedRoundLimit,
+    timeLimitSeconds: draft.timeLimitSeconds,
     targetWealth: draft.targetWealth,
     initialCash: draft.initialCash
   };
@@ -81,10 +85,12 @@ export function validateAndBuildSetup(draft: SetupDraft): SetupResult {
   return { players, config, error: null };
 }
 
-function createDefaultConfig(mode: EndConditionMode): GameConfig {
+function createDefaultConfig(endCondition: EndConditionMode): GameConfig {
   return {
-    endCondition: mode,
+    mode: "CLASSIC",
+    endCondition,
     fixedRoundLimit: 12,
+    timeLimitSeconds: null,
     targetWealth: 8000,
     initialCash: 1500
   };

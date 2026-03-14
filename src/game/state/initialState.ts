@@ -4,8 +4,10 @@ import type { GameConfig, GameState, Player } from "../types";
 import { PLAYER_COLOR_OPTIONS, PLAYER_ICON_OPTIONS } from "../../features/players/playerAppearance";
 
 const DEFAULT_CONFIG: GameConfig = {
+  mode: "CLASSIC",
   endCondition: "LAST_PLAYER_STANDING",
   fixedRoundLimit: 12,
+  timeLimitSeconds: null,
   targetWealth: 8000,
   initialCash: 1500
 };
