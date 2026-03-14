@@ -93,11 +93,110 @@ body {
 }
 
 .player-row {
-  align-items: end;
+  align-items: start;
   display: grid;
   gap: 10px;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr);
   margin-bottom: 12px;
+}
+
+.player-name-column {
+  display: grid;
+  gap: 8px;
+}
+
+.player-token-preview {
+  align-items: center;
+  color: #4b6079;
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.player-picker-group {
+  border: 1px solid #d7e0ea;
+  border-radius: 12px;
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  min-width: 0;
+  padding: 10px;
+}
+
+.player-picker-group legend {
+  font-size: 12px;
+  font-weight: 800;
+  padding: 0 4px;
+  text-transform: uppercase;
+}
+
+.token-picker {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.token-option {
+  cursor: pointer;
+  display: block;
+}
+
+.token-option-body {
+  align-items: center;
+  border: 1px solid #c6d7e8;
+  border-radius: 12px;
+  display: flex;
+  gap: 8px;
+  min-height: 48px;
+  padding: 8px 10px;
+  transition: border-color 140ms ease, box-shadow 140ms ease, transform 140ms ease;
+}
+
+.token-option:hover .token-option-body {
+  border-color: #7d9cc0;
+  transform: translateY(-1px);
+}
+
+.visually-hidden-input {
+  height: 1px;
+  margin: -1px;
+  opacity: 0;
+  overflow: hidden;
+  position: absolute;
+  pointer-events: none;
+  width: 1px;
+}
+
+.visually-hidden-input:checked + .token-option-body {
+  border-color: #174a86;
+  box-shadow: inset 0 0 0 2px rgba(23, 74, 134, 0.16);
+}
+
+.visually-hidden-input:focus-visible + .token-option-body {
+  outline: 3px solid #174a86;
+  outline-offset: 2px;
+}
+
+.player-token-badge {
+  align-items: center;
+  border: 1px solid rgba(17, 38, 63, 0.16);
+  border-radius: 999px;
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 28px;
+  justify-content: center;
+  width: 28px;
+}
+
+.player-token-badge svg {
+  display: block;
+  height: 16px;
+  width: 16px;
+}
+
+.setup-token-preview {
+  box-shadow: 0 8px 16px rgba(21, 56, 91, 0.16);
 }
 
 label {
@@ -339,13 +438,14 @@ select:focus-visible {
   margin-top: 6px;
 }
 
-.token-row span {
-  background: #e5eef9;
-  border-radius: 999px;
-  color: #15385b;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 1px 6px;
+.token-row .player-token-badge {
+  height: 24px;
+  width: 24px;
+}
+
+.token-row .player-token-badge svg {
+  height: 14px;
+  width: 14px;
 }
 
 .player-list {
@@ -374,7 +474,13 @@ select:focus-visible {
 }
 
 .player-card strong {
-  display: block;
+  margin: 0;
+}
+
+.player-card-header {
+  align-items: center;
+  display: flex;
+  gap: 8px;
   margin-bottom: 4px;
 }
 

@@ -61,6 +61,46 @@ describe("SetupScreen", () => {
     expect(onStart.mock.calls[0][0].config.endCondition).toBe("FIXED_ROUNDS");
   });
 
+  test("renders icon and background colour controls for each player", () => {
+    render(<SetupScreen onStart={() => undefined} />);
+
+    expect(screen.getByLabelText("Player 1 icon Circle")).toBeChecked();
+    expect(screen.getByLabelText("Player 1 background colour Blue")).toBeChecked();
+    expect(screen.getByLabelText("Player 2 icon Square")).toBeChecked();
+    expect(screen.getByLabelText("Player 2 background colour Red")).toBeChecked();
+  });
+
+  test("uses the selected icon and background colour when starting the game", async () => {
+    const onStart = vi.fn();
+    const user = userEvent.setup();
+    render(<SetupScreen onStart={onStart} />);
+
+    await user.click(screen.getByLabelText("Player 1 icon Triangle"));
+    await user.click(screen.getByLabelText("Player 1 background colour Gold"));
+    await user.click(screen.getByRole("button", { name: "Start Game" }));
+
+    expect(onStart).toHaveBeenCalledTimes(1);
+    expect(onStart.mock.calls[0][0].players[0]).toMatchObject({
+      iconId: "triangle",
+      colorId: "gold"
+    });
+  });
+
+  test("shows a visible error when two players choose the same icon and background colour", async () => {
+    const onStart = vi.fn();
+    const user = userEvent.setup();
+    render(<SetupScreen onStart={onStart} />);
+
+    await user.click(screen.getByLabelText("Player 2 icon Circle"));
+    await user.click(screen.getByLabelText("Player 2 background colour Blue"));
+    await user.click(screen.getByRole("button", { name: "Start Game" }));
+
+    expect(onStart).not.toHaveBeenCalled();
+    expect(
+      screen.getByText("Each player needs a unique icon and background colour combination")
+    ).toBeInTheDocument();
+  });
+
   test("builds players with selected token appearance", () => {
     const result = validateAndBuildSetup({
       players: [
