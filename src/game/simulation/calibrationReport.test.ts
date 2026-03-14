@@ -14,7 +14,7 @@ describe("formatTransportFareCalibrationReport", () => {
 
     expect(output).toContain("Transport Fare Calibration Report");
     expect(output).toContain("Target average rounds: 20");
-    expect(output).toContain("Best candidates: 20, 25");
-    expect(output).toContain("30");
+    expect(output).toContain("Best candidates: $20/stop, $25/stop");
+    expect(output).toContain("$30/stop");
   });
 });

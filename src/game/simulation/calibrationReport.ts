@@ -10,7 +10,7 @@ function formatDecimal(value: number): string {
 }
 
 function formatFareRate(value: number): string {
-  return `${value}`;
+  return `$${value}/stop`;
 }
 
 export function formatTransportFareCalibrationReport(

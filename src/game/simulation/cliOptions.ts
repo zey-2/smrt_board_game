@@ -23,6 +23,13 @@ const DEFAULT_FARE_MAX = 80;
 const DEFAULT_FARE_STEP = 5;
 const DEFAULT_TARGET_ROUNDS = 20;
 
+const OBSOLETE_FLAG_REPLACEMENTS: Record<string, string> = {
+  "--calibrate-initial-cash": "--calibrate-transport-fare",
+  "--cash-min": "--fare-min",
+  "--cash-max": "--fare-max",
+  "--cash-step": "--fare-step"
+};
+
 function parseRequiredInteger(flag: string, value: number): number {
   if (!Number.isInteger(value) || value <= 0) {
     throw new Error(`Invalid ${flag} value: ${value}`);
@@ -43,6 +50,12 @@ export function parseSimulationCliOptions(argv: string[]): SimulationCliOptions 
   for (let index = 0; index < argv.length; index += 1) {
     const current = argv[index];
     const next = argv[index + 1];
+
+    if (current in OBSOLETE_FLAG_REPLACEMENTS) {
+      throw new Error(
+        `Obsolete flag ${current}. Use ${OBSOLETE_FLAG_REPLACEMENTS[current]} instead.`
+      );
+    }
 
     if (current === "--calibrate-transport-fare") {
       calibrateTransportFare = true;
