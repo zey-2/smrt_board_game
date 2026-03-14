@@ -314,17 +314,6 @@ select:focus-visible {
   text-transform: uppercase;
 }
 
-.station-flag {
-  align-self: flex-start;
-  background: #eaf2fb;
-  border-radius: 999px;
-  color: #34597d;
-  font-size: 10px;
-  font-weight: 700;
-  margin-top: 4px;
-  padding: 1px 7px;
-}
-
 .station-metrics {
   display: flex;
   flex-wrap: wrap;

@@ -54,6 +54,12 @@ describe("GameScreen", () => {
     expect(screen.getAllByText(/Owner none/i).length).toBeGreaterThan(0);
   });
 
+  test("does not render interchange badges on station tiles", () => {
+    render(<GameScreen initial={initialState} />);
+
+    expect(screen.queryByText("Interchange")).not.toBeInTheDocument();
+  });
+
   test("highlights active player with service indicator class", () => {
     const { container } = render(<GameScreen initial={initialState} />);
     const activeCard = container.querySelector(".player-card.active-player");

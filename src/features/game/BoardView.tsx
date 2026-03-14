@@ -9,17 +9,6 @@ interface BoardViewProps {
   state: GameState;
 }
 
-const INTERCHANGE_STATIONS = new Set([
-  "Jurong East",
-  "Bishan",
-  "City Hall",
-  "Raffles Place",
-  "Serangoon",
-  "HarbourFront",
-  "Stevens",
-  "Woodlands"
-]);
-
 export function BoardView({ state }: BoardViewProps) {
   return (
     <section className="card game-board-panel">
@@ -45,9 +34,6 @@ export function BoardView({ state }: BoardViewProps) {
                   <div className="station-sub">{lineLabel}</div>
                 </div>
               </div>
-              {INTERCHANGE_STATIONS.has(tile.name) ? (
-                <div className="station-flag">Interchange</div>
-              ) : null}
               <div className="station-metrics">
                 <span>${tile.price}</span>
                 <span>Rent {tile.baseRent}</span>
