@@ -5,12 +5,13 @@ interface RankingEntry {
 }
 
 interface WinnerScreenProps {
-  winnerName: string;
+  winnerName: string | null;
+  isDraw: boolean;
   ranking: RankingEntry[];
 }
 
-export function WinnerScreen({ winnerName, ranking }: WinnerScreenProps) {
-  const bannerText = winnerName === "Draw" ? "Draw" : `Winner: ${winnerName}`;
+export function WinnerScreen({ winnerName, isDraw, ranking }: WinnerScreenProps) {
+  const bannerText = isDraw ? "Draw" : `Winner: ${winnerName ?? "Unknown winner"}`;
 
   return (
     <section className="card results-board">

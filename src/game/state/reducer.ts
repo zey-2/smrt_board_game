@@ -38,7 +38,7 @@ function maybeResolveWinner(
 }
 
 function getCompletionMessage(resolution: EndConditionResolution): string {
-  return resolution.winnerId === null ? "Timed game ended in a draw" : "Game over";
+  return resolution.winnerId === null ? "Game ended in a draw" : "Game over";
 }
 
 function withLog(state: GameState, logLine: string): GameState {

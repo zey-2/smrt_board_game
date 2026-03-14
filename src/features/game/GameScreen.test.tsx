@@ -208,4 +208,33 @@ describe("GameScreen", () => {
     expect(screen.queryByText(/Pass device to/i)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Roll Dice" })).toBeInTheDocument();
   });
+
+  test("renders a draw banner for completed games without a winner", () => {
+    const drawState = {
+      ...initialState,
+      phase: "completed" as const,
+      winnerId: null
+    };
+
+    render(<GameScreen initial={drawState} />);
+
+    expect(screen.getByText("Draw")).toBeInTheDocument();
+    expect(screen.queryByText("Winner: Draw")).not.toBeInTheDocument();
+  });
+
+  test("treats a player named Draw as a winner when winnerId points at that player", () => {
+    const winnerState = {
+      ...initialState,
+      phase: "completed" as const,
+      winnerId: initialState.players[0].id,
+      players: [
+        { ...initialState.players[0], name: "Draw" },
+        initialState.players[1]
+      ]
+    };
+
+    render(<GameScreen initial={winnerState} />);
+
+    expect(screen.getByText("Winner: Draw")).toBeInTheDocument();
+  });
 });
