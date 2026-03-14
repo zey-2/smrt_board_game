@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { clearSavedGameState, loadGameState, saveGameState } from "./game/persistence/localSave";
 import { createGameState } from "./game/state/initialState";
 import type { GameState } from "./game/types";
@@ -14,6 +14,23 @@ export default function App() {
   const [currentGameState, setCurrentGameState] = useState<GameState>(
     savedState ?? createGameState()
   );
+  const [showMobileAdvice, setShowMobileAdvice] = useState(() => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+
+    return window.innerWidth < 768;
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setShowMobileAdvice(window.innerWidth < 768);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const shellClassName =
     mode === "game"
       ? "app-shell map-theme-shell game-page-shell"
@@ -44,7 +61,13 @@ export default function App() {
 
   return (
     <main className={shellClassName}>
+      {showMobileAdvice ? (
+        <section className="card mobile-advice-banner" role="status">
+          Mobile display detected. For the best gameplay layout, please use a desktop or tablet.
+        </section>
+      ) : null}
       {mode === "setup" ? (
+
         <>
           <header className="title-banner card">
             <img src={smrtCorporateLogo} alt="SMRT" className="smrt-logo" />

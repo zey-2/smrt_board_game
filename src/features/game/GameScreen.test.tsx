@@ -9,6 +9,21 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+
+function setViewportSize(width: number, height: number) {
+  Object.defineProperty(window, "innerWidth", {
+    configurable: true,
+    value: width,
+    writable: true
+  });
+  Object.defineProperty(window, "innerHeight", {
+    configurable: true,
+    value: height,
+    writable: true
+  });
+  window.dispatchEvent(new Event("resize"));
+}
+
 async function advancePlaybackFrames(frameCount: number, frameDuration = 300) {
   for (let index = 0; index < frameCount; index += 1) {
     await act(async () => {
@@ -117,9 +132,17 @@ describe("GameScreen", () => {
   });
 
   test("shows the updated 25-station board count", () => {
+    setViewportSize(1000, 900);
     render(<GameScreen initial={initialState} />);
 
     expect(screen.getByText("25 stations")).toBeInTheDocument();
+  });
+
+  test("trims to 24 stations on wide 6x4 display ratios", () => {
+    setViewportSize(1800, 900);
+    render(<GameScreen initial={initialState} />);
+
+    expect(screen.getByText("24 stations")).toBeInTheDocument();
   });
 
   test("does not render interchange badges on station tiles", () => {

@@ -88,6 +88,12 @@ body {
   gap: 14px;
 }
 
+.mobile-advice-banner {
+  border-top: 7px solid #b42318;
+  color: #7a271a;
+  font-weight: 700;
+}
+
 .setup-card > h2,
 .setup-card > .error-text {
   margin: 0;
@@ -395,6 +401,10 @@ select:focus-visible {
   align-content: start;
   grid-auto-rows: 1fr;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.compact-board-grid--six-columns {
+  grid-template-columns: repeat(6, minmax(0, 1fr));
 }
 
 .board-tile {

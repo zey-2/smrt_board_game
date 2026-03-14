@@ -101,3 +101,25 @@ test("pauses timed countdown outside the live game screen", async () => {
 
   expect(screen.getByText("Time left: 09:57")).toBeInTheDocument();
 });
+
+
+test("shows a desktop/tablet advisory banner on narrow mobile widths", async () => {
+  const originalWidth = window.innerWidth;
+  Object.defineProperty(window, "innerWidth", {
+    configurable: true,
+    value: 500,
+    writable: true
+  });
+
+  render(<App />);
+
+  expect(
+    screen.getByText(/please use a desktop or tablet/i)
+  ).toBeInTheDocument();
+
+  Object.defineProperty(window, "innerWidth", {
+    configurable: true,
+    value: originalWidth,
+    writable: true
+  });
+});
