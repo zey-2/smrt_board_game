@@ -19,6 +19,13 @@ export function loadGameState(): GameState | null {
     if (!parsed || typeof parsed !== "object") return null;
     if (!Array.isArray(parsed.players) || !Array.isArray(parsed.board)) return null;
     if (typeof parsed.turnIndex !== "number" || typeof parsed.round !== "number") return null;
+    if (
+      typeof parsed.remainingTimeMs !== "undefined" &&
+      parsed.remainingTimeMs !== null &&
+      typeof parsed.remainingTimeMs !== "number"
+    ) {
+      return null;
+    }
     return parsed as GameState;
   } catch {
     return null;

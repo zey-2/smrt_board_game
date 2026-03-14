@@ -16,6 +16,11 @@ interface EvalConfig {
   targetWealth?: number;
 }
 
+interface ScoredPlayer {
+  id: string;
+  netWorth: number;
+}
+
 export interface EndConditionResolution {
   isComplete: boolean;
   winnerId: string | null;
@@ -25,6 +30,22 @@ const INCOMPLETE_RESULT: EndConditionResolution = {
   isComplete: false,
   winnerId: null
 };
+
+export function resolveHighestNetWorthOutcome(
+  players: ScoredPlayer[]
+): EndConditionResolution {
+  if (players.length === 0) {
+    return { isComplete: true, winnerId: null };
+  }
+
+  const richestNetWorth = Math.max(...players.map((player) => player.netWorth));
+  const leaders = players.filter((player) => player.netWorth === richestNetWorth);
+
+  return {
+    isComplete: true,
+    winnerId: leaders.length === 1 ? leaders[0].id : null
+  };
+}
 
 export function evaluateEndCondition(
   mode: EndConditionMode,
@@ -50,13 +71,7 @@ export function evaluateEndCondition(
       return INCOMPLETE_RESULT;
     }
 
-    const richestNetWorth = Math.max(...state.players.map((player) => player.netWorth));
-    const leaders = state.players.filter((player) => player.netWorth === richestNetWorth);
-
-    return {
-      isComplete: true,
-      winnerId: leaders.length === 1 ? leaders[0].id : null
-    };
+    return resolveHighestNetWorthOutcome(state.players);
   }
 
   const targetWealth = config.targetWealth ?? 8000;

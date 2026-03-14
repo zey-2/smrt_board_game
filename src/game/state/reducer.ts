@@ -1,6 +1,7 @@
 import { calculateNetWorth, buyStation } from "../rules/economy";
 import { evaluateEndCondition } from "../rules/endConditions";
 import type { EndConditionResolution } from "../rules/endConditions";
+import { resolveHighestNetWorthOutcome } from "../rules/endConditions";
 import { movePosition } from "../rules/movement";
 import type { Player } from "../types";
 import type { GameAction } from "./actions";
@@ -14,6 +15,14 @@ function getPlayerNetWorth(player: Player, state: GameState): number {
   return calculateNetWorth(player.cash, assets);
 }
 
+function getScoredPlayers(state: GameState) {
+  return state.players.map((player) => ({
+    id: player.id,
+    status: player.status,
+    netWorth: getPlayerNetWorth(player, state)
+  }));
+}
+
 function maybeResolveWinner(
   state: GameState,
   roundComplete = false
@@ -22,14 +31,9 @@ function maybeResolveWinner(
     return { isComplete: false, winnerId: null };
   }
 
-  const enrichedPlayers = state.players.map((player) => ({
-    id: player.id,
-    status: player.status,
-    netWorth: getPlayerNetWorth(player, state)
-  }));
   return evaluateEndCondition(
     state.config.endCondition,
-    { players: enrichedPlayers, round: state.round },
+    { players: getScoredPlayers(state), round: state.round },
     {
       fixedRoundLimit: state.config.fixedRoundLimit,
       targetWealth: state.config.targetWealth
@@ -64,6 +68,10 @@ export function reducer(state: GameState, action: GameAction): GameState {
       phase: "roll",
       pendingMessage: null,
       winnerId: null,
+      remainingTimeMs:
+        action.payload.config.timeLimitSeconds === null
+          ? null
+          : action.payload.config.timeLimitSeconds * 1000,
       actionLog: ["Game started"]
     };
   }
@@ -80,6 +88,26 @@ export function reducer(state: GameState, action: GameAction): GameState {
 
   if (action.type === "SET_PHASE") {
     return { ...state, phase: action.payload.phase };
+  }
+
+  if (action.type === "TICK_TIMER") {
+    if (state.config.mode !== "TIMED" || state.remainingTimeMs === null) {
+      return state;
+    }
+
+    const remainingTimeMs = Math.max(0, state.remainingTimeMs - action.payload.elapsedMs);
+    if (remainingTimeMs > 0) {
+      return { ...state, remainingTimeMs };
+    }
+
+    const resolution = resolveHighestNetWorthOutcome(getScoredPlayers(state));
+    return {
+      ...state,
+      remainingTimeMs,
+      winnerId: resolution.winnerId,
+      phase: "completed",
+      pendingMessage: getCompletionMessage(resolution)
+    };
   }
 
   if (action.type === "ROLL_DICE") {

@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { evaluateEndCondition } from "./endConditions";
+import * as endConditions from "./endConditions";
 import type { EndConditionMode } from "../types";
 
 interface EvalPlayer {
@@ -14,6 +15,24 @@ const makeState = (players: EvalPlayer[], round = 1) => ({
 });
 
 describe("evaluateEndCondition", () => {
+  test("resolves a highest-net-worth winner", () => {
+    const resolution = endConditions.resolveHighestNetWorthOutcome?.([
+      { id: "p1", netWorth: 900 },
+      { id: "p2", netWorth: 1200 }
+    ]);
+
+    expect(resolution).toEqual({ isComplete: true, winnerId: "p2" });
+  });
+
+  test("resolves tied highest net worth as a draw", () => {
+    const resolution = endConditions.resolveHighestNetWorthOutcome?.([
+      { id: "p1", netWorth: 1500 },
+      { id: "p2", netWorth: 1500 }
+    ]);
+
+    expect(resolution).toEqual({ isComplete: true, winnerId: null });
+  });
+
   test("detects winner by target wealth", () => {
     const resolution = evaluateEndCondition("TARGET_WEALTH", makeState([
       { id: "p1", status: "active", netWorth: 7800 },

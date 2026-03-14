@@ -3,6 +3,12 @@ import { getRandomDogBreedNames } from "../defaultPlayerNames";
 import type { GameConfig, GameState, Player } from "../types";
 import { PLAYER_COLOR_OPTIONS, PLAYER_ICON_OPTIONS } from "../../features/players/playerAppearance";
 
+declare module "../types" {
+  interface GameState {
+    remainingTimeMs: number | null;
+  }
+}
+
 const DEFAULT_CONFIG: GameConfig = {
   mode: "CLASSIC",
   endCondition: "LAST_PLAYER_STANDING",
@@ -11,6 +17,10 @@ const DEFAULT_CONFIG: GameConfig = {
   targetWealth: 8000,
   initialCash: 1500
 };
+
+function getInitialRemainingTimeMs(config: GameConfig): number | null {
+  return config.timeLimitSeconds === null ? null : config.timeLimitSeconds * 1000;
+}
 
 function createDefaultPlayers(): Player[] {
   return getRandomDogBreedNames(2).map((name, index) => ({
@@ -36,6 +46,7 @@ export function createGameState(players = createDefaultPlayers(), config = DEFAU
     phase: "roll",
     pendingMessage: null,
     winnerId: null,
+    remainingTimeMs: getInitialRemainingTimeMs(config),
     actionLog: []
   };
 }

@@ -31,6 +31,21 @@ function endTurn(state: GameState) {
   return reducer({ ...state, phase: "turn_end" as const }, { type: "END_TURN" });
 }
 
+function createTimedState(cashByPlayer: [number, number]) {
+  return createGameState(
+    [
+      { ...initialState.players[0], id: "p1", name: "Player 1", cash: cashByPlayer[0] },
+      { ...initialState.players[1], id: "p2", name: "Player 2", cash: cashByPlayer[1] }
+    ],
+    {
+      ...initialState.config,
+      mode: "TIMED",
+      timeLimitSeconds: 600,
+      endCondition: "LAST_PLAYER_STANDING"
+    }
+  );
+}
+
 describe("reducer", () => {
   test("uses last player standing as the default end condition", () => {
     expect(initialState.config.endCondition).toBe("LAST_PLAYER_STANDING");
@@ -113,5 +128,40 @@ describe("reducer", () => {
     expect(completed.phase).toBe("completed");
     expect(completed.round).toBe(1);
     expect(completed.winnerId).toBeNull();
+  });
+
+  test("decrements remaining time in timed mode", () => {
+    const timedState = createTimedState([1500, 1500]);
+    const next = reducer(
+      { ...timedState, remainingTimeMs: 600000 },
+      { type: "TICK_TIMER", payload: { elapsedMs: 1000 } } as never
+    ) as GameState & { remainingTimeMs: number | null };
+
+    expect(next.remainingTimeMs).toBe(599000);
+    expect(next.phase).toBe("roll");
+  });
+
+  test("completes timed games on timeout using highest net worth", () => {
+    const timedState = createTimedState([1200, 1800]);
+    const next = reducer(
+      { ...timedState, remainingTimeMs: 500 },
+      { type: "TICK_TIMER", payload: { elapsedMs: 1000 } } as never
+    ) as GameState & { remainingTimeMs: number | null };
+
+    expect(next.phase).toBe("completed");
+    expect(next.winnerId).toBe("p2");
+    expect(next.remainingTimeMs).toBe(0);
+  });
+
+  test("completes timed games as draws on tied net worth", () => {
+    const timedState = createTimedState([1500, 1500]);
+    const next = reducer(
+      { ...timedState, remainingTimeMs: 250 },
+      { type: "TICK_TIMER", payload: { elapsedMs: 1000 } } as never
+    ) as GameState & { remainingTimeMs: number | null };
+
+    expect(next.phase).toBe("completed");
+    expect(next.winnerId).toBeNull();
+    expect(next.pendingMessage).toBe("Game ended in a draw");
   });
 });
