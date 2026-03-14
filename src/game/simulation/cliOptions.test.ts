@@ -2,28 +2,28 @@ import { describe, expect, test } from "vitest";
 import { parseSimulationCliOptions } from "./cliOptions";
 
 describe("parseSimulationCliOptions", () => {
-  test("parses initial cash calibration mode and range flags", () => {
+  test("parses transport fare calibration mode and range flags", () => {
     expect(
       parseSimulationCliOptions([
-        "--calibrate-initial-cash",
+        "--calibrate-transport-fare",
         "--games",
         "2000",
         "--seed",
         "20260314",
-        "--cash-min",
-        "600",
-        "--cash-max",
-        "1200",
-        "--cash-step",
-        "100"
+        "--fare-min",
+        "5",
+        "--fare-max",
+        "80",
+        "--fare-step",
+        "5"
       ])
     ).toEqual({
-      mode: "CALIBRATE_INITIAL_CASH",
+      mode: "CALIBRATE_TRANSPORT_FARE",
       games: 2000,
       seed: 20260314,
-      cashMin: 600,
-      cashMax: 1200,
-      cashStep: 100,
+      fareMin: 5,
+      fareMax: 80,
+      fareStep: 5,
       targetRounds: 20
     });
   });
@@ -36,9 +36,9 @@ describe("parseSimulationCliOptions", () => {
     });
   });
 
-  test("throws when cash step is not positive", () => {
+  test("throws when fare step is not positive", () => {
     expect(() =>
-      parseSimulationCliOptions(["--calibrate-initial-cash", "--cash-step", "0"])
-    ).toThrow("Invalid --cash-step value");
+      parseSimulationCliOptions(["--calibrate-transport-fare", "--fare-step", "0"])
+    ).toThrow("Invalid --fare-step value");
   });
 });

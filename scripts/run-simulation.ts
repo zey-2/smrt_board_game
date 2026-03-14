@@ -2,8 +2,8 @@ import {
   FIXED_ROUND_OPTIONS,
   buildGameConfigFromModeSelection
 } from "../src/game/constants/gameModeOptions";
-import { rankInitialCashCandidates } from "../src/game/simulation/calibration";
-import { formatInitialCashCalibrationReport } from "../src/game/simulation/calibrationReport";
+import { rankTransportFareRateCandidates } from "../src/game/simulation/calibration";
+import { formatTransportFareCalibrationReport } from "../src/game/simulation/calibrationReport";
 import { parseSimulationCliOptions } from "../src/game/simulation/cliOptions";
 import { BASELINE_SIMULATION_PRESET } from "../src/game/simulation/presets";
 import { formatSimulationReport } from "../src/game/simulation/report";
@@ -12,18 +12,18 @@ import { runSimulationBatch } from "../src/game/simulation/runner";
 function main() {
   const options = parseSimulationCliOptions(process.argv.slice(2));
 
-  if (options.mode === "CALIBRATE_INITIAL_CASH") {
-    const results = rankInitialCashCandidates({
-      minCash: options.cashMin,
-      maxCash: options.cashMax,
-      step: options.cashStep,
+  if (options.mode === "CALIBRATE_TRANSPORT_FARE") {
+    const results = rankTransportFareRateCandidates({
+      fareMin: options.fareMin,
+      fareMax: options.fareMax,
+      step: options.fareStep,
       targetRounds: options.targetRounds,
       gameCount: options.games,
       seed: options.seed
     });
 
     console.log(
-      formatInitialCashCalibrationReport({
+      formatTransportFareCalibrationReport({
         targetRounds: options.targetRounds,
         results
       })

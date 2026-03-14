@@ -5,12 +5,12 @@ export interface SummaryCliOptions {
 }
 
 export interface CalibrationCliOptions {
-  mode: "CALIBRATE_INITIAL_CASH";
+  mode: "CALIBRATE_TRANSPORT_FARE";
   games: number;
   seed: number;
-  cashMin: number;
-  cashMax: number;
-  cashStep: number;
+  fareMin: number;
+  fareMax: number;
+  fareStep: number;
   targetRounds: number;
 }
 
@@ -18,9 +18,9 @@ export type SimulationCliOptions = SummaryCliOptions | CalibrationCliOptions;
 
 const DEFAULT_GAMES = 1000;
 const DEFAULT_SEED = 20260314;
-const DEFAULT_CASH_MIN = 100;
-const DEFAULT_CASH_MAX = 1500;
-const DEFAULT_CASH_STEP = 50;
+const DEFAULT_FARE_MIN = 5;
+const DEFAULT_FARE_MAX = 80;
+const DEFAULT_FARE_STEP = 5;
 const DEFAULT_TARGET_ROUNDS = 20;
 
 function parseRequiredInteger(flag: string, value: number): number {
@@ -34,18 +34,18 @@ function parseRequiredInteger(flag: string, value: number): number {
 export function parseSimulationCliOptions(argv: string[]): SimulationCliOptions {
   let games = DEFAULT_GAMES;
   let seed = DEFAULT_SEED;
-  let cashMin = DEFAULT_CASH_MIN;
-  let cashMax = DEFAULT_CASH_MAX;
-  let cashStep = DEFAULT_CASH_STEP;
+  let fareMin = DEFAULT_FARE_MIN;
+  let fareMax = DEFAULT_FARE_MAX;
+  let fareStep = DEFAULT_FARE_STEP;
   let targetRounds = DEFAULT_TARGET_ROUNDS;
-  let calibrateInitialCash = false;
+  let calibrateTransportFare = false;
 
   for (let index = 0; index < argv.length; index += 1) {
     const current = argv[index];
     const next = argv[index + 1];
 
-    if (current === "--calibrate-initial-cash") {
-      calibrateInitialCash = true;
+    if (current === "--calibrate-transport-fare") {
+      calibrateTransportFare = true;
       continue;
     }
 
@@ -61,20 +61,20 @@ export function parseSimulationCliOptions(argv: string[]): SimulationCliOptions 
       continue;
     }
 
-    if (current === "--cash-min" && next) {
-      cashMin = Number(next);
+    if (current === "--fare-min" && next) {
+      fareMin = Number(next);
       index += 1;
       continue;
     }
 
-    if (current === "--cash-max" && next) {
-      cashMax = Number(next);
+    if (current === "--fare-max" && next) {
+      fareMax = Number(next);
       index += 1;
       continue;
     }
 
-    if (current === "--cash-step" && next) {
-      cashStep = Number(next);
+    if (current === "--fare-step" && next) {
+      fareStep = Number(next);
       index += 1;
       continue;
     }
@@ -88,7 +88,7 @@ export function parseSimulationCliOptions(argv: string[]): SimulationCliOptions 
   games = parseRequiredInteger("--games", games);
   seed = parseRequiredInteger("--seed", seed);
 
-  if (!calibrateInitialCash) {
+  if (!calibrateTransportFare) {
     return {
       mode: "SUMMARY",
       games,
@@ -96,18 +96,18 @@ export function parseSimulationCliOptions(argv: string[]): SimulationCliOptions 
     };
   }
 
-  parseRequiredInteger("--cash-min", cashMin);
-  parseRequiredInteger("--cash-max", cashMax);
-  cashStep = parseRequiredInteger("--cash-step", cashStep);
+  fareMin = parseRequiredInteger("--fare-min", fareMin);
+  fareMax = parseRequiredInteger("--fare-max", fareMax);
+  fareStep = parseRequiredInteger("--fare-step", fareStep);
   targetRounds = parseRequiredInteger("--target-rounds", targetRounds);
 
   return {
-    mode: "CALIBRATE_INITIAL_CASH",
+    mode: "CALIBRATE_TRANSPORT_FARE",
     games,
     seed,
-    cashMin,
-    cashMax,
-    cashStep,
+    fareMin,
+    fareMax,
+    fareStep,
     targetRounds
   };
 }
