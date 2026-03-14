@@ -17,7 +17,7 @@ const STATIONS: Omit<StationTile, "ownerId">[] = [
   { id: "marina-south-pier", name: "Marina South Pier", line: "NSL", price: 260, baseRent: 26, group: "south" },
   { id: "harbourfront", name: "HarbourFront", line: "CCL", price: 280, baseRent: 28, group: "harbour" },
   { id: "buona-vista", name: "Buona Vista", line: "CCL", price: 300, baseRent: 30, group: "tech-belt" },
-  { id: "one-north", name: "one-north", line: "CCL", price: 240, baseRent: 24, group: "tech-belt" },
+  { id: "One-North", name: "One-North", line: "CCL", price: 240, baseRent: 24, group: "tech-belt" },
   { id: "serangoon", name: "Serangoon", line: "CCL", price: 280, baseRent: 28, group: "northeast-link" },
   { id: "stadium", name: "Stadium", line: "CCL", price: 220, baseRent: 22, group: "leisure" },
   { id: "caldecott", name: "Caldecott", line: "CCL", price: 260, baseRent: 26, group: "central-link" },
