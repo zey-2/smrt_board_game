@@ -28,6 +28,32 @@ describe("buyStation", () => {
     expect(result.player.ownedStationIds).toContain("s1");
     expect(result.tile.ownerId).toBe("p1");
   });
+
+  test("preserves caller-specific fields on successful purchases", () => {
+    const player = {
+      id: "p1",
+      cash: 350,
+      position: 4,
+      status: "active" as const,
+      ownedStationIds: []
+    };
+    const tile = {
+      id: "s1",
+      ownerId: null,
+      price: 200,
+      name: "Station 1",
+      baseRent: 20
+    };
+
+    const result = buyStation(player, tile);
+
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+    expect(result.player.position).toBe(4);
+    expect(result.player.status).toBe("active");
+    expect(result.tile.name).toBe("Station 1");
+    expect(result.tile.baseRent).toBe(20);
+  });
 });
 
 describe("payRent", () => {
@@ -60,6 +86,31 @@ describe("payTransportFare", () => {
     expect(result.payer.cash).toBe(120);
     expect(result.owner.cash).toBe(620);
     expect(result.payer.status).toBe("active");
+  });
+
+  test("preserves player metadata while resolving the fare transfer", () => {
+    const result = payTransportFare(
+      {
+        id: "payer",
+        cash: 240,
+        status: "active" as const,
+        position: 7,
+        ownedStationIds: ["a"]
+      },
+      {
+        id: "owner",
+        cash: 500,
+        status: "active" as const,
+        position: 2,
+        ownedStationIds: ["b"]
+      },
+      120
+    );
+
+    expect(result.payer.position).toBe(7);
+    expect(result.payer.ownedStationIds).toEqual(["a"]);
+    expect(result.owner.position).toBe(2);
+    expect(result.owner.ownedStationIds).toEqual(["b"]);
   });
 });
 
