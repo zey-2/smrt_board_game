@@ -2,7 +2,7 @@ import { KEY_STATIONS_PRESET } from "../constants/stations";
 import type { GameConfig, GameState, Player } from "../types";
 
 const DEFAULT_CONFIG: GameConfig = {
-  endCondition: "FIXED_ROUNDS",
+  endCondition: "LAST_PLAYER_STANDING",
   fixedRoundLimit: 12,
   targetWealth: 8000,
   initialCash: 1500

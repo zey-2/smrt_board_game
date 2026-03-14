@@ -4,6 +4,10 @@ import { initialState } from "./initialState";
 import { reducer } from "./reducer";
 
 describe("reducer", () => {
+  test("uses last player standing as the default end condition", () => {
+    expect(initialState.config.endCondition).toBe("LAST_PLAYER_STANDING");
+  });
+
   test("rejects BUY_STATION when tile is already owned", () => {
     const occupiedBoard = KEY_STATIONS_PRESET.map((tile, index) =>
       index === 0 ? { ...tile, ownerId: "p2" } : tile

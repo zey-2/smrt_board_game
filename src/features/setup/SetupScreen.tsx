@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { END_CONDITION_OPTIONS } from "../../game/constants/endConditions";
 import type { EndConditionMode, GameConfig, Player } from "../../game/types";
-import { getMajorityVote, validateAndBuildSetup } from "./setupValidation";
+import { validateAndBuildSetup } from "./setupValidation";
 
 export interface SetupPayload {
   players: Player[];
@@ -13,31 +13,26 @@ interface SetupScreenProps {
 }
 
 const DEFAULT_NAMES = ["Player 1", "Player 2"];
+const DEFAULT_END_CONDITION: EndConditionMode = "LAST_PLAYER_STANDING";
 
 export function SetupScreen({ onStart }: SetupScreenProps) {
   const [names, setNames] = useState<string[]>(DEFAULT_NAMES);
-  const [votes, setVotes] = useState<Array<EndConditionMode | "">>(["", ""]);
+  const [endCondition, setEndCondition] = useState<EndConditionMode>(DEFAULT_END_CONDITION);
   const [error, setError] = useState<string | null>(null);
-
-  const majorityVote = useMemo(() => getMajorityVote(votes), [votes]);
 
   const canAddPlayer = names.length < 4;
   const canRemovePlayer = names.length > 2;
 
   const handlePlayerCountChange = (nextCount: number) => {
     const nextNames = [...names];
-    const nextVotes = [...votes];
     if (nextCount > names.length) {
       while (nextNames.length < nextCount) {
         nextNames.push(`Player ${nextNames.length + 1}`);
-        nextVotes.push("");
       }
     } else if (nextCount < names.length) {
       nextNames.length = nextCount;
-      nextVotes.length = nextCount;
     }
     setNames(nextNames);
-    setVotes(nextVotes);
   };
 
   const handleNameChange = (index: number, value: string) => {
@@ -46,16 +41,10 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
     setNames(next);
   };
 
-  const handleVoteChange = (index: number, value: EndConditionMode | "") => {
-    const next = [...votes];
-    next[index] = value;
-    setVotes(next);
-  };
-
   const handleStart = () => {
     const result = validateAndBuildSetup({
       names,
-      votes,
+      endCondition,
       initialCash: 1500,
       fixedRoundLimit: 12,
       targetWealth: 8000
@@ -87,6 +76,20 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
         </button>
       </div>
 
+      <label>
+        End condition
+        <select
+          value={endCondition}
+          onChange={(event) => setEndCondition(event.target.value as EndConditionMode)}
+        >
+          {END_CONDITION_OPTIONS.map((option) => (
+            <option key={option.mode} value={option.mode}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </label>
+
       {names.map((name, index) => (
         <div className="player-row" key={`setup-player-${index}`}>
           <label>
@@ -97,26 +100,11 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
               maxLength={20}
             />
           </label>
-          <label>
-            Vote end condition for Player {index + 1}
-            <select
-              value={votes[index]}
-              onChange={(event) => handleVoteChange(index, event.target.value as EndConditionMode | "")}
-            >
-              <option value="">Select one</option>
-              {END_CONDITION_OPTIONS.map((option) => (
-                <option key={option.mode} value={option.mode}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </label>
         </div>
       ))}
 
-      <p>Majority: {majorityVote ? END_CONDITION_OPTIONS.find((item) => item.mode === majorityVote)?.label : "None"}</p>
       {error ? <p className="error-text">{error}</p> : null}
-      <button type="button" onClick={handleStart} disabled={!majorityVote}>
+      <button type="button" onClick={handleStart}>
         Start Game
       </button>
     </section>

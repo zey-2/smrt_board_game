@@ -50,7 +50,7 @@ export default function App() {
             <img src={smrtCorporateLogo} alt="SMRT" className="smrt-logo" />
             <div>
               <h1>SMRT Monopoly</h1>
-              <p>Transit-map inspired property strategy</p>
+              <p>Transit-map inspired board game</p>
             </div>
           </header>
           {savedState ? (

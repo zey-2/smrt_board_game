@@ -5,11 +5,8 @@ test("setup to winner flow works for 2 players", async ({ page }) => {
   await expect(page.getByText("SMRT Monopoly")).toBeVisible();
 
   const startButton = page.getByRole("button", { name: "Start Game" });
-  await expect(startButton).toBeDisabled();
-
-  await page.getByLabel("Vote end condition for Player 1").selectOption("FIXED_ROUNDS");
-  await page.getByLabel("Vote end condition for Player 2").selectOption("FIXED_ROUNDS");
   await expect(startButton).toBeEnabled();
+  await page.getByLabel("End condition").selectOption("FIXED_ROUNDS");
   await startButton.click();
 
   await expect(page.getByText("Game Setup")).toHaveCount(0);

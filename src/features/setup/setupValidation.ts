@@ -2,7 +2,7 @@ import type { EndConditionMode, GameConfig, Player } from "../../game/types";
 
 export interface SetupDraft {
   names: string[];
-  votes: Array<EndConditionMode | "">;
+  endCondition: EndConditionMode;
   initialCash: number;
   fixedRoundLimit: number;
   targetWealth: number;
@@ -14,51 +14,25 @@ export interface SetupResult {
   error: string | null;
 }
 
-export function getMajorityVote(votes: Array<EndConditionMode | "">): EndConditionMode | null {
-  if (votes.some((vote) => !vote)) return null;
-
-  const counts = votes.reduce<Record<EndConditionMode, number>>(
-    (acc, vote) => {
-      if (!vote) return acc;
-      acc[vote] += 1;
-      return acc;
-    },
-    {
-      LAST_PLAYER_STANDING: 0,
-      FIXED_ROUNDS: 0,
-      TARGET_WEALTH: 0
-    }
-  );
-
-  const sorted = (Object.entries(counts) as Array<[EndConditionMode, number]>).sort(
-    (a, b) => b[1] - a[1]
-  );
-  const [winner, winnerVotes] = sorted[0];
-  const secondVotes = sorted[1][1];
-  const hasMajority = winnerVotes > Math.floor(votes.length / 2);
-  return hasMajority && winnerVotes > secondVotes ? winner : null;
-}
-
 export function validateAndBuildSetup(draft: SetupDraft): SetupResult {
   if (draft.names.length < 2 || draft.names.length > 4) {
-    return { players: [], config: createDefaultConfig("FIXED_ROUNDS"), error: "Player count must be 2-4" };
+    return {
+      players: [],
+      config: createDefaultConfig("LAST_PLAYER_STANDING"),
+      error: "Player count must be 2-4"
+    };
   }
 
   if (draft.names.some((name) => name.trim().length === 0)) {
-    return { players: [], config: createDefaultConfig("FIXED_ROUNDS"), error: "All players need a name" };
-  }
-
-  const selectedEndCondition = getMajorityVote(draft.votes);
-  if (!selectedEndCondition) {
     return {
       players: [],
-      config: createDefaultConfig("FIXED_ROUNDS"),
-      error: "End condition requires a majority vote"
+      config: createDefaultConfig("LAST_PLAYER_STANDING"),
+      error: "All players need a name"
     };
   }
 
   const config: GameConfig = {
-    endCondition: selectedEndCondition,
+    endCondition: draft.endCondition,
     fixedRoundLimit: draft.fixedRoundLimit,
     targetWealth: draft.targetWealth,
     initialCash: draft.initialCash
