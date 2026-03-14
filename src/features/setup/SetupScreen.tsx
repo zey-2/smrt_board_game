@@ -1,7 +1,12 @@
 import { useState } from "react";
-import { END_CONDITION_OPTIONS } from "../../game/constants/endConditions";
+import {
+  DEFAULT_GAME_LENGTH_PRESET_ID,
+  GAME_LENGTH_PRESETS,
+  buildGameConfigFromGameLengthPreset,
+  type GameLengthPresetId
+} from "../../game/constants/gameLengthPresets";
 import { getRandomDogBreedNames } from "../../game/defaultPlayerNames";
-import type { EndConditionMode, GameConfig, Player } from "../../game/types";
+import type { GameConfig, Player } from "../../game/types";
 import {
   PLAYER_COLOR_OPTIONS,
   PLAYER_ICON_OPTIONS,
@@ -20,8 +25,6 @@ interface SetupScreenProps {
   onStart: (payload: SetupPayload) => void;
 }
 
-const DEFAULT_END_CONDITION: EndConditionMode = "LAST_PLAYER_STANDING";
-
 function createSetupPlayer(name: string, index: number): SetupPlayerDraft {
   return {
     name,
@@ -34,7 +37,9 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
   const [players, setPlayers] = useState<SetupPlayerDraft[]>(() =>
     getRandomDogBreedNames(2).map((name, index) => createSetupPlayer(name, index))
   );
-  const [endCondition, setEndCondition] = useState<EndConditionMode>(DEFAULT_END_CONDITION);
+  const [selectedGameLength, setSelectedGameLength] = useState<GameLengthPresetId>(
+    DEFAULT_GAME_LENGTH_PRESET_ID
+  );
   const [error, setError] = useState<string | null>(null);
 
   const canAddPlayer = players.length < 4;
@@ -81,12 +86,13 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
   };
 
   const handleStart = () => {
+    const config = buildGameConfigFromGameLengthPreset(selectedGameLength);
     const result = validateAndBuildSetup({
       players,
-      endCondition,
-      initialCash: 1500,
-      fixedRoundLimit: 12,
-      targetWealth: 8000
+      endCondition: config.endCondition,
+      initialCash: config.initialCash,
+      fixedRoundLimit: config.fixedRoundLimit,
+      targetWealth: config.targetWealth
     });
 
     if (result.error) {
@@ -119,14 +125,14 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
       </div>
 
       <label>
-        End condition
+        Game length
         <select
-          value={endCondition}
-          onChange={(event) => setEndCondition(event.target.value as EndConditionMode)}
+          value={selectedGameLength}
+          onChange={(event) => setSelectedGameLength(event.target.value as GameLengthPresetId)}
         >
-          {END_CONDITION_OPTIONS.map((option) => (
-            <option key={option.mode} value={option.mode}>
-              {option.label}
+          {GAME_LENGTH_PRESETS.map((preset) => (
+            <option key={preset.id} value={preset.id}>
+              {preset.label}
             </option>
           ))}
         </select>

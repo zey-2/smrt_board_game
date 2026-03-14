@@ -9,21 +9,24 @@ describe("SetupScreen", () => {
     vi.restoreAllMocks();
   });
 
-  test("shows one shared end condition selector with last player standing as the default", async () => {
+  test("shows one shared game length selector with 20 minutes as the default", async () => {
     const onStart = vi.fn();
     const user = userEvent.setup();
     render(<SetupScreen onStart={onStart} />);
 
-    const endConditionSelect = screen.getByLabelText("End condition");
-    expect(endConditionSelect).toHaveValue("LAST_PLAYER_STANDING");
-    expect(screen.getAllByLabelText("End condition")).toHaveLength(1);
+    const gameLengthSelect = screen.getByLabelText("Game length");
+    expect(gameLengthSelect).toHaveValue("MINUTES_20");
+    expect(screen.queryByLabelText("End condition")).not.toBeInTheDocument();
 
     const startButton = screen.getByRole("button", { name: "Start Game" });
     expect(startButton).toBeEnabled();
 
     await user.click(startButton);
     expect(onStart).toHaveBeenCalledTimes(1);
-    expect(onStart.mock.calls[0][0].config.endCondition).toBe("LAST_PLAYER_STANDING");
+    expect(onStart.mock.calls[0][0].config).toMatchObject({
+      endCondition: "FIXED_ROUNDS",
+      fixedRoundLimit: 12
+    });
   });
 
   test("prefills player names with dog breeds", () => {
@@ -46,7 +49,7 @@ describe("SetupScreen", () => {
     expect(screen.getByLabelText("Player 3 name")).toHaveValue("Dachshund");
   });
 
-  test("uses the shared end condition selector value when starting the game", async () => {
+  test("uses classic mode when the player selects the classic game length option", async () => {
     const onStart = vi.fn();
     const user = userEvent.setup();
     render(<SetupScreen onStart={onStart} />);
@@ -54,11 +57,13 @@ describe("SetupScreen", () => {
     const startButton = screen.getByRole("button", { name: "Start Game" });
     expect(startButton).toBeEnabled();
 
-    await user.selectOptions(screen.getByLabelText("End condition"), "FIXED_ROUNDS");
+    await user.selectOptions(screen.getByLabelText("Game length"), "CLASSIC");
 
     await user.click(startButton);
     expect(onStart).toHaveBeenCalledTimes(1);
-    expect(onStart.mock.calls[0][0].config.endCondition).toBe("FIXED_ROUNDS");
+    expect(onStart.mock.calls[0][0].config).toMatchObject({
+      endCondition: "LAST_PLAYER_STANDING"
+    });
   });
 
   test("does not show the board preset text on the setup screen", () => {
