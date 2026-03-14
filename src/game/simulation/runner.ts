@@ -1,5 +1,6 @@
 import { calculateNetWorth } from "../rules/economy";
 import { evaluateEndCondition } from "../rules/endConditions";
+import type { EndConditionResolution } from "../rules/endConditions";
 import { movePosition } from "../rules/movement";
 import type { EndConditionMode } from "../types";
 import { resolveLandingTurn } from "./engine";
@@ -50,6 +51,7 @@ export interface SimulationBatchSummary {
   gameCount: number;
   averageRounds: number;
   seatWinCounts: number[];
+  totalTies: number;
   averageEndingCash: number;
   averageEndingNetWorth: number;
   totalStationPurchases: number;
@@ -62,7 +64,8 @@ export interface SimulationBatchSummary {
 }
 
 interface SingleGameSummary {
-  winnerSeat: number;
+  winnerSeat: number | null;
+  isTie: boolean;
   rounds: number;
   endingCashTotal: number;
   endingNetWorthTotal: number;
@@ -125,8 +128,13 @@ function maybeResolveWinner(
   players: SimulationPlayer[],
   board: SimulationTile[],
   round: number,
-  simulationConfig: SimulationConfig
-): string | null {
+  simulationConfig: SimulationConfig,
+  roundComplete = false
+): EndConditionResolution {
+  if (simulationConfig.endCondition === "FIXED_ROUNDS" && !roundComplete) {
+    return { isComplete: false, winnerId: null };
+  }
+
   return evaluateEndCondition(
     simulationConfig.endCondition,
     {
@@ -175,6 +183,7 @@ function simulateGame(
   let totalPurchaseEnablesFromCashTile = 0;
   let previousLeaderId = getUniqueLeaderId(players, board);
   let winnerId: string | null = null;
+  let isComplete = false;
 
   for (let turnCount = 0; turnCount < maxTurnsPerGame; turnCount += 1) {
     const currentPlayer = players[turnIndex];
@@ -242,32 +251,41 @@ function simulateGame(
         pendingCashBoosts.set(currentPlayer.id, tile.reward);
       }
 
-      winnerId = maybeResolveWinner(players, board, round, simulationConfig);
+      const resolution = maybeResolveWinner(players, board, round, simulationConfig);
+      winnerId = resolution.winnerId;
       const leaderId = getUniqueLeaderId(players, board);
       if (previousLeaderId && leaderId && previousLeaderId !== leaderId) {
         totalLeadChanges += 1;
       }
       previousLeaderId = leaderId;
 
-      if (winnerId) {
+      if (resolution.isComplete) {
+        isComplete = true;
         break;
       }
     }
 
     turnIndex = (turnIndex + 1) % players.length;
     if (turnIndex === 0) {
-      round += 1;
-      winnerId = maybeResolveWinner(players, board, round, simulationConfig);
-      if (winnerId) {
+      const resolution = maybeResolveWinner(players, board, round, simulationConfig, true);
+      winnerId = resolution.winnerId;
+      if (resolution.isComplete) {
+        isComplete = true;
         break;
       }
+
+      round += 1;
     }
   }
 
-  const finalWinnerId = winnerId ?? getRichestPlayerId(players, board);
+  const finalWinnerId = isComplete ? winnerId : getRichestPlayerId(players, board);
 
   return {
-    winnerSeat: players.findIndex((player) => player.id === finalWinnerId),
+    winnerSeat:
+      finalWinnerId === null
+        ? null
+        : players.findIndex((player) => player.id === finalWinnerId),
+    isTie: isComplete && finalWinnerId === null,
     rounds: round,
     endingCashTotal: players.reduce((sum, player) => sum + player.cash, 0),
     endingNetWorthTotal: players.reduce((sum, player) => sum + getNetWorth(player, board), 0),
@@ -290,6 +308,7 @@ export function runSimulationBatch(input: RunSimulationBatchInput): SimulationBa
   const tileLandingCounts = createTileLandingCounts(input.preset.board);
 
   let totalRounds = 0;
+  let totalTies = 0;
   let totalEndingCash = 0;
   let totalEndingNetWorth = 0;
   let totalStationPurchases = 0;
@@ -310,7 +329,12 @@ export function runSimulationBatch(input: RunSimulationBatchInput): SimulationBa
       input.diceValueProvider
     );
 
-    seatWinCounts[summary.winnerSeat] += 1;
+    if (summary.isTie) {
+      totalTies += 1;
+    } else if (summary.winnerSeat !== null) {
+      seatWinCounts[summary.winnerSeat] += 1;
+    }
+
     totalRounds += summary.rounds;
     totalEndingCash += summary.endingCashTotal;
     totalEndingNetWorth += summary.endingNetWorthTotal;
@@ -331,6 +355,7 @@ export function runSimulationBatch(input: RunSimulationBatchInput): SimulationBa
     gameCount: input.gameCount,
     averageRounds: totalRounds / input.gameCount,
     seatWinCounts,
+    totalTies,
     averageEndingCash: totalEndingCash / (input.gameCount * playerCount),
     averageEndingNetWorth: totalEndingNetWorth / (input.gameCount * playerCount),
     totalStationPurchases,

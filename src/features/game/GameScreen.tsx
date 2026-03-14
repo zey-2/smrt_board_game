@@ -105,7 +105,7 @@ export function GameScreen({
     })
     .sort((a, b) => b.netWorth - a.netWorth);
 
-  const winnerName = state.players.find((player) => player.id === state.winnerId)?.name ?? "No winner";
+  const winnerName = state.players.find((player) => player.id === state.winnerId)?.name ?? "Draw";
   const isCompleted = state.phase === "completed";
 
   return (

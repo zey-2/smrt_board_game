@@ -1,7 +1,35 @@
 import { describe, expect, test } from "vitest";
 import { KEY_STATIONS_PRESET } from "../constants/stations";
-import { initialState } from "./initialState";
+import { createGameState, initialState } from "./initialState";
 import { reducer } from "./reducer";
+import type { GameState } from "../types";
+
+function createFixedRoundState({
+  fixedRoundLimit,
+  cashByPlayer
+}: {
+  fixedRoundLimit: number;
+  cashByPlayer: [number, number];
+}) {
+  return {
+    ...createGameState(
+      [
+        { ...initialState.players[0], id: "p1", name: "Player 1", cash: cashByPlayer[0] },
+        { ...initialState.players[1], id: "p2", name: "Player 2", cash: cashByPlayer[1] }
+      ],
+      {
+        ...initialState.config,
+        endCondition: "FIXED_ROUNDS",
+        fixedRoundLimit
+      }
+    ),
+    phase: "turn_end" as const
+  };
+}
+
+function endTurn(state: GameState) {
+  return reducer({ ...state, phase: "turn_end" as const }, { type: "END_TURN" });
+}
 
 describe("reducer", () => {
   test("uses last player standing as the default end condition", () => {
@@ -42,5 +70,48 @@ describe("reducer", () => {
     const afterSecond = reducer({ ...afterFirst, phase: "turn_end" as const }, { type: "END_TURN" });
     expect(afterSecond.turnIndex).toBe(0);
     expect(afterSecond.round).toBe(initialState.round + 1);
+  });
+
+  test("fixed-round games complete only after the capped round is fully played", () => {
+    const start = createFixedRoundState({
+      fixedRoundLimit: 2,
+      cashByPlayer: [1400, 1600]
+    });
+
+    const afterFirstTurn = endTurn(start);
+    expect(afterFirstTurn.phase).toBe("roll");
+    expect(afterFirstTurn.round).toBe(1);
+    expect(afterFirstTurn.winnerId).toBeNull();
+
+    const afterRoundOne = endTurn(afterFirstTurn);
+    expect(afterRoundOne.phase).toBe("roll");
+    expect(afterRoundOne.round).toBe(2);
+    expect(afterRoundOne.winnerId).toBeNull();
+
+    const afterThirdTurn = endTurn(afterRoundOne);
+    expect(afterThirdTurn.phase).toBe("roll");
+    expect(afterThirdTurn.round).toBe(2);
+    expect(afterThirdTurn.winnerId).toBeNull();
+
+    const completed = endTurn(afterThirdTurn);
+    expect(completed.phase).toBe("completed");
+    expect(completed.round).toBe(2);
+    expect(completed.winnerId).toBe("p2");
+  });
+
+  test("fixed-round ties complete the game without assigning a winner", () => {
+    const start = createFixedRoundState({
+      fixedRoundLimit: 1,
+      cashByPlayer: [1500, 1500]
+    });
+
+    const afterFirstTurn = endTurn(start);
+    expect(afterFirstTurn.phase).toBe("roll");
+    expect(afterFirstTurn.winnerId).toBeNull();
+
+    const completed = endTurn(afterFirstTurn);
+    expect(completed.phase).toBe("completed");
+    expect(completed.round).toBe(1);
+    expect(completed.winnerId).toBeNull();
   });
 });

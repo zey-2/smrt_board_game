@@ -21,7 +21,7 @@ test("hides the setup banner after starting a game", async () => {
   const user = userEvent.setup();
   const { container } = render(<App />);
 
-  await user.selectOptions(screen.getByLabelText("End condition"), "LAST_PLAYER_STANDING");
+  await user.selectOptions(screen.getByLabelText("Game length"), "CLASSIC");
   await user.click(screen.getByRole("button", { name: "Start Game" }));
 
   expect(container.querySelector(".title-banner")).toBeNull();
@@ -32,7 +32,7 @@ test("exits to setup and keeps a saved game available", async () => {
   const user = userEvent.setup();
   render(<App />);
 
-  await user.selectOptions(screen.getByLabelText("End condition"), "LAST_PLAYER_STANDING");
+  await user.selectOptions(screen.getByLabelText("Game length"), "CLASSIC");
   await user.click(screen.getByRole("button", { name: "Start Game" }));
   await user.click(screen.getByRole("button", { name: "Save" }));
 
@@ -45,7 +45,7 @@ test("renders the saved game section below game setup", async () => {
   const user = userEvent.setup();
   render(<App />);
 
-  await user.selectOptions(screen.getByLabelText("End condition"), "LAST_PLAYER_STANDING");
+  await user.selectOptions(screen.getByLabelText("Game length"), "CLASSIC");
   await user.click(screen.getByRole("button", { name: "Start Game" }));
   await user.click(screen.getByRole("button", { name: "Save" }));
 
@@ -59,7 +59,7 @@ test("exits to setup and clears the saved game when requested", async () => {
   const user = userEvent.setup();
   render(<App />);
 
-  await user.selectOptions(screen.getByLabelText("End condition"), "LAST_PLAYER_STANDING");
+  await user.selectOptions(screen.getByLabelText("Game length"), "CLASSIC");
   await user.click(screen.getByRole("button", { name: "Start Game" }));
   await user.click(screen.getByRole("button", { name: "Abort" }));
 

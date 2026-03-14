@@ -16,24 +16,52 @@ interface EvalConfig {
   targetWealth?: number;
 }
 
+export interface EndConditionResolution {
+  isComplete: boolean;
+  winnerId: string | null;
+}
+
+const INCOMPLETE_RESULT: EndConditionResolution = {
+  isComplete: false,
+  winnerId: null
+};
+
 export function evaluateEndCondition(
   mode: EndConditionMode,
   state: EvalState,
   config: EvalConfig = {}
-): string | null {
+): EndConditionResolution {
   if (mode === "LAST_PLAYER_STANDING") {
     const activePlayers = state.players.filter((player) => player.status === "active");
-    return activePlayers.length === 1 ? activePlayers[0].id : null;
+    if (activePlayers.length === 1) {
+      return { isComplete: true, winnerId: activePlayers[0].id };
+    }
+
+    if (activePlayers.length === 0) {
+      return { isComplete: true, winnerId: null };
+    }
+
+    return INCOMPLETE_RESULT;
   }
 
   if (mode === "FIXED_ROUNDS") {
     const fixedRoundLimit = config.fixedRoundLimit ?? 12;
-    if (state.round < fixedRoundLimit) return null;
-    const sorted = [...state.players].sort((a, b) => b.netWorth - a.netWorth);
-    return sorted[0]?.id ?? null;
+    if (state.round < fixedRoundLimit) {
+      return INCOMPLETE_RESULT;
+    }
+
+    const richestNetWorth = Math.max(...state.players.map((player) => player.netWorth));
+    const leaders = state.players.filter((player) => player.netWorth === richestNetWorth);
+
+    return {
+      isComplete: true,
+      winnerId: leaders.length === 1 ? leaders[0].id : null
+    };
   }
 
   const targetWealth = config.targetWealth ?? 8000;
   const winner = state.players.find((player) => player.netWorth >= targetWealth);
-  return winner?.id ?? null;
+  return winner
+    ? { isComplete: true, winnerId: winner.id }
+    : INCOMPLETE_RESULT;
 }

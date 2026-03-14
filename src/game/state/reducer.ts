@@ -1,5 +1,6 @@
 import { calculateNetWorth, buyStation } from "../rules/economy";
 import { evaluateEndCondition } from "../rules/endConditions";
+import type { EndConditionResolution } from "../rules/endConditions";
 import { movePosition } from "../rules/movement";
 import type { Player } from "../types";
 import type { GameAction } from "./actions";
@@ -13,7 +14,14 @@ function getPlayerNetWorth(player: Player, state: GameState): number {
   return calculateNetWorth(player.cash, assets);
 }
 
-function maybeResolveWinner(state: GameState): string | null {
+function maybeResolveWinner(
+  state: GameState,
+  roundComplete = false
+): EndConditionResolution {
+  if (state.config.endCondition === "FIXED_ROUNDS" && !roundComplete) {
+    return { isComplete: false, winnerId: null };
+  }
+
   const enrichedPlayers = state.players.map((player) => ({
     id: player.id,
     status: player.status,
@@ -27,6 +35,10 @@ function maybeResolveWinner(state: GameState): string | null {
       targetWealth: state.config.targetWealth
     }
   );
+}
+
+function getCompletionMessage(resolution: EndConditionResolution): string {
+  return resolution.winnerId === null ? "Timed game ended in a draw" : "Game over";
 }
 
 function withLog(state: GameState, logLine: string): GameState {
@@ -136,9 +148,14 @@ export function reducer(state: GameState, action: GameAction): GameState {
       `${player.name} bought ${tile.name}`
     );
 
-    const winnerId = maybeResolveWinner(nextState);
-    return winnerId
-      ? { ...nextState, winnerId, phase: "completed", pendingMessage: "Game over" }
+    const resolution = maybeResolveWinner(nextState);
+    return resolution.isComplete
+      ? {
+          ...nextState,
+          winnerId: resolution.winnerId,
+          phase: "completed",
+          pendingMessage: getCompletionMessage(resolution)
+        }
       : nextState;
   }
 
@@ -160,20 +177,56 @@ export function reducer(state: GameState, action: GameAction): GameState {
     }
 
     const nextTurnIndex = (state.turnIndex + 1) % state.players.length;
-    const nextRound = nextTurnIndex === 0 ? state.round + 1 : state.round;
+    const turnLog = `Turn moved to ${state.players[nextTurnIndex].name}`;
+
+    if (nextTurnIndex === 0) {
+      const resolution = maybeResolveWinner(state, true);
+
+      if (resolution.isComplete) {
+        return withLog(
+          {
+            ...state,
+            turnIndex: nextTurnIndex,
+            phase: "completed",
+            pendingMessage: getCompletionMessage(resolution),
+            winnerId: resolution.winnerId
+          },
+          turnLog
+        );
+      }
+
+      return withLog(
+        {
+          ...state,
+          turnIndex: nextTurnIndex,
+          round: state.round + 1,
+          phase: "roll",
+          pendingMessage: null
+        },
+        turnLog
+      );
+    }
+
     const nextState = withLog(
       {
         ...state,
         turnIndex: nextTurnIndex,
-        round: nextRound,
+        round: state.round,
         phase: "roll",
         pendingMessage: null
       },
-      `Turn moved to ${state.players[nextTurnIndex].name}`
+      turnLog
     );
 
-    const winnerId = maybeResolveWinner(nextState);
-    return winnerId ? { ...nextState, winnerId, phase: "completed" } : nextState;
+    const resolution = maybeResolveWinner(nextState);
+    return resolution.isComplete
+      ? {
+          ...nextState,
+          winnerId: resolution.winnerId,
+          phase: "completed",
+          pendingMessage: getCompletionMessage(resolution)
+        }
+      : nextState;
   }
 
   return state;

@@ -13,6 +13,11 @@ function formatSeatWins(summary: SimulationBatchSummary): string {
     .join(", ");
 }
 
+function formatTies(summary: SimulationBatchSummary): string {
+  const rate = summary.gameCount === 0 ? 0 : (summary.totalTies / summary.gameCount) * 100;
+  return `Ties: ${summary.totalTies} (${rate.toFixed(1)}%)`;
+}
+
 function formatTopLandings(summary: SimulationBatchSummary): string {
   return Object.entries(summary.tileLandingCounts)
     .sort((left, right) => right[1] - left[1])
@@ -27,6 +32,7 @@ function formatSummary(summary: SimulationBatchSummary): string[] {
     `Games: ${summary.gameCount}`,
     `Average rounds: ${formatDecimal(summary.averageRounds)}`,
     `Seat wins: ${formatSeatWins(summary)}`,
+    formatTies(summary),
     `Average ending cash: ${formatDecimal(summary.averageEndingCash)}`,
     `Average ending net worth: ${formatDecimal(summary.averageEndingNetWorth)}`,
     `Station purchases: ${summary.totalStationPurchases}`,
