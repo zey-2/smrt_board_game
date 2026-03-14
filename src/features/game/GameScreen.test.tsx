@@ -210,6 +210,26 @@ describe("GameScreen", () => {
     expect(screen.getByRole("button", { name: "Skip Purchase" })).toBeInTheDocument();
   });
 
+  test("shows skip purchase before buy station visually while preserving DOM order", () => {
+    const resolveTileState = {
+      ...initialState,
+      phase: "resolve_tile" as const
+    };
+
+    const { container } = render(<GameScreen initial={resolveTileState} />);
+    const controlPanel = container.querySelector(".control-panel");
+    expect(controlPanel).toBeTruthy();
+
+    const buttons = within(controlPanel as HTMLElement).getAllByRole("button");
+
+    expect(buttons.map((button) => button.textContent?.trim())).toEqual([
+      "Buy Station",
+      "Skip Purchase"
+    ]);
+    expect(getComputedStyle(buttons[0]).order).toBe("2");
+    expect(getComputedStyle(buttons[1]).order).toBe("1");
+  });
+
   test("shows an inline handoff card after ending a turn and hides normal turn actions", async () => {
     const user = userEvent.setup();
     const turnEndState = {
@@ -221,8 +241,10 @@ describe("GameScreen", () => {
 
     await user.click(screen.getByRole("button", { name: "End Turn" }));
 
-    expect(screen.getByText(`Pass device to ${initialState.players[1].name}`)).toBeInTheDocument();
-    expect(screen.getByText("Hide your strategy and hand the device to the next player.")).toBeInTheDocument();
+    expect(screen.getByText(`${initialState.players[1].name}'s Turn`)).toBeInTheDocument();
+    expect(
+      screen.queryByText("Hide your strategy and hand the device to the next player.")
+    ).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Start Turn" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Roll Dice" })).not.toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
@@ -240,7 +262,7 @@ describe("GameScreen", () => {
     await user.click(screen.getByRole("button", { name: "End Turn" }));
     await user.click(screen.getByRole("button", { name: "Start Turn" }));
 
-    expect(screen.queryByText(/Pass device to/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/'s Turn$/)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Roll Dice" })).toBeInTheDocument();
   });
 

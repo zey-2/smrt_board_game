@@ -15,7 +15,7 @@ describe("player handoff flow", () => {
     render(<GameScreen initial={turnEndState} />);
     await user.click(screen.getByRole("button", { name: "End Turn" }));
 
-    expect(screen.getByText(/Pass device to/i)).toBeInTheDocument();
+    expect(screen.getByText(`${initialState.players[1].name}'s Turn`)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Start Turn" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Continue" })).not.toBeInTheDocument();
   });

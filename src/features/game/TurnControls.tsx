@@ -31,8 +31,7 @@ export function TurnControls({
       <h3>Turn Controls</h3>
       {showTurnHandoff ? (
         <div className="turn-handoff-card">
-          <h4>Pass device to {nextPlayerName}</h4>
-          <p>Hide your strategy and hand the device to the next player.</p>
+          <h4>{nextPlayerName}'s Turn</h4>
           <button className="primary-button" type="button" onClick={onStartTurn}>
             Start Turn
           </button>
@@ -67,10 +66,19 @@ export function TurnControls({
 
             {showResolveActions ? (
               <>
-                <button type="button" onClick={() => onDispatch({ type: "BUY_STATION" })} disabled={!canBuy}>
+                <button
+                  className="purchase-action-buy"
+                  type="button"
+                  onClick={() => onDispatch({ type: "BUY_STATION" })}
+                  disabled={!canBuy}
+                >
                   Buy Station
                 </button>
-                <button className="accent-button" type="button" onClick={() => onDispatch({ type: "SKIP_PURCHASE" })}>
+                <button
+                  className="accent-button purchase-action-skip"
+                  type="button"
+                  onClick={() => onDispatch({ type: "SKIP_PURCHASE" })}
+                >
                   Skip Purchase
                 </button>
               </>

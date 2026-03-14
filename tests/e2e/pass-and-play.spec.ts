@@ -20,5 +20,5 @@ test("setup to winner flow works for 2 players", async ({ page }) => {
 
   await page.getByRole("button", { name: "End Turn" }).click();
   await expect(page.getByRole("dialog")).toBeVisible();
-  await expect(page.getByText(/Pass device to/i)).toBeVisible();
+  await expect(page.getByText("Samoyed's Turn")).toBeVisible();
 });

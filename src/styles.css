@@ -580,6 +580,14 @@ select:focus-visible {
   gap: 8px;
 }
 
+.control-panel .purchase-action-buy {
+  order: 2;
+}
+
+.control-panel .purchase-action-skip {
+  order: 1;
+}
+
 .turn-handoff-card {
   background: linear-gradient(135deg, #f7fbff, #eef5ff);
   border: 1px solid #c8d9ec;
