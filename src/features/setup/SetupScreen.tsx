@@ -5,6 +5,8 @@ import type { EndConditionMode, GameConfig, Player } from "../../game/types";
 import {
   PLAYER_COLOR_OPTIONS,
   PLAYER_ICON_OPTIONS,
+  PlayerColorSwatch,
+  PlayerIconGlyph,
   PlayerTokenBadge
 } from "../players/playerAppearance";
 import { validateAndBuildSetup, type SetupPlayerDraft } from "./setupValidation";
@@ -99,7 +101,6 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
   return (
     <section className="card setup-card">
       <h2>Game Setup</h2>
-      <p>Board preset: SMRT key stations</p>
       <div className="inline-actions">
         <button
           type="button"
@@ -167,13 +168,7 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
                     aria-label={`Player ${index + 1} icon ${option.label}`}
                   />
                   <span className="token-option-body">
-                    <PlayerTokenBadge
-                      iconId={option.id}
-                      colorId={player.colorId}
-                      label={`Player ${index + 1} ${option.label} icon preview`}
-                      className="player-token-badge"
-                    />
-                    <span>{option.label}</span>
+                    <PlayerIconGlyph iconId={option.id} className="token-option-icon" />
                   </span>
                 </label>
               ))}
@@ -194,13 +189,7 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
                     aria-label={`Player ${index + 1} background colour ${option.label}`}
                   />
                   <span className="token-option-body">
-                    <PlayerTokenBadge
-                      iconId={player.iconId}
-                      colorId={option.id}
-                      label={`Player ${index + 1} ${option.label} colour preview`}
-                      className="player-token-badge"
-                    />
-                    <span>{option.label}</span>
+                    <PlayerColorSwatch colorId={option.id} className="token-option-swatch" />
                   </span>
                 </label>
               ))}

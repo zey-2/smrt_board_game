@@ -65,6 +65,28 @@ export function getPlayerColorOption(colorId: string) {
   return PLAYER_COLOR_OPTIONS.find((option) => option.id === colorId) ?? PLAYER_COLOR_OPTIONS[0];
 }
 
+interface PlayerIconGlyphProps {
+  iconId: string;
+  className?: string;
+}
+
+export function PlayerIconGlyph({ iconId, className = "" }: PlayerIconGlyphProps) {
+  const icon = getPlayerIconOption(iconId);
+
+  return <span className={className}>{icon.render()}</span>;
+}
+
+interface PlayerColorSwatchProps {
+  colorId: string;
+  className?: string;
+}
+
+export function PlayerColorSwatch({ colorId, className = "" }: PlayerColorSwatchProps) {
+  const color = getPlayerColorOption(colorId);
+
+  return <span className={className} style={{ backgroundColor: color.background }} />;
+}
+
 interface PlayerTokenBadgeProps {
   iconId: string;
   colorId: string;

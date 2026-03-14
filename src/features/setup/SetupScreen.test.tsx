@@ -61,6 +61,12 @@ describe("SetupScreen", () => {
     expect(onStart.mock.calls[0][0].config.endCondition).toBe("FIXED_ROUNDS");
   });
 
+  test("does not show the board preset text on the setup screen", () => {
+    render(<SetupScreen onStart={() => undefined} />);
+
+    expect(screen.queryByText("Board preset: SMRT key stations")).not.toBeInTheDocument();
+  });
+
   test("renders icon and background colour controls for each player", () => {
     render(<SetupScreen onStart={() => undefined} />);
 
@@ -68,6 +74,22 @@ describe("SetupScreen", () => {
     expect(screen.getByLabelText("Player 1 background colour Navy")).toBeChecked();
     expect(screen.getByLabelText("Player 2 icon Square")).toBeChecked();
     expect(screen.getByLabelText("Player 2 background colour Purple")).toBeChecked();
+  });
+
+  test("shows icon choices without visible labels and colour choices as swatches only", () => {
+    render(<SetupScreen onStart={() => undefined} />);
+
+    const iconOption = screen.getByLabelText("Player 1 icon Circle").closest("label");
+    const colorOption = screen.getByLabelText("Player 1 background colour Navy").closest("label");
+
+    expect(iconOption).not.toBeNull();
+    expect(iconOption).not.toHaveTextContent("Circle");
+    expect(iconOption?.querySelector("svg")).not.toBeNull();
+    expect(iconOption?.querySelector('[role="img"]')).toBeNull();
+
+    expect(colorOption).not.toBeNull();
+    expect(colorOption).not.toHaveTextContent("Navy");
+    expect(colorOption?.querySelector("svg")).toBeNull();
   });
 
   test("uses the selected icon and background colour when starting the game", async () => {
