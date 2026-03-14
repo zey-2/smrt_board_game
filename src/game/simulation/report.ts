@@ -36,7 +36,7 @@ function formatSummary(summary: SimulationBatchSummary): string[] {
     `Average ending cash: ${formatDecimal(summary.averageEndingCash)}`,
     `Average ending net worth: ${formatDecimal(summary.averageEndingNetWorth)}`,
     `Station purchases: ${summary.totalStationPurchases}`,
-    `Rent payments: ${summary.totalRentPayments}`,
+    `Transport fare payments: ${summary.totalTransportFarePayments}`,
     `Bankruptcies: ${summary.totalBankruptcies}`,
     `Lead changes: ${summary.totalLeadChanges}`,
     `Cash-tile awards: ${summary.totalCashTileAwards}`,

@@ -1,4 +1,8 @@
-import { buyStation, payRent } from "../rules/economy";
+import {
+  buyStation,
+  calculateTransportFare,
+  payTransportFare
+} from "../rules/economy";
 import { shouldBuyStation } from "./policy";
 import type { PurchasePolicy } from "./policy";
 import type {
@@ -12,6 +16,8 @@ export interface ResolveLandingTurnInput {
   player: SimulationPlayer;
   tile: SimulationTile;
   owner?: SimulationPlayer;
+  travelSteps?: number;
+  transportFareRate?: number;
   policy: PurchasePolicy;
 }
 
@@ -25,7 +31,7 @@ export interface ResolveLandingTurnResult {
 function createEmptyMetrics(): SimulationMetricDelta {
   return {
     stationPurchases: 0,
-    rentPayments: 0,
+    transportFarePayments: 0,
     bankruptcies: 0,
     cashTileAwards: 0
   };
@@ -65,14 +71,23 @@ function resolveStationLanding(
       throw new Error(`Missing owner for tile ${tile.id}`);
     }
 
-    const result = payRent(input.player, input.owner, tile.baseRent);
+    if (input.travelSteps === undefined) {
+      throw new Error(`Missing travel steps for tile ${tile.id}`);
+    }
+
+    if (input.transportFareRate === undefined) {
+      throw new Error(`Missing transport fare rate for tile ${tile.id}`);
+    }
+
+    const fare = calculateTransportFare(input.travelSteps, input.transportFareRate);
+    const result = payTransportFare(input.player, input.owner, fare);
     return {
       player: result.payer,
       owner: result.owner,
       tile,
       metrics: {
         ...metrics,
-        rentPayments: 1,
+        transportFarePayments: 1,
         bankruptcies: result.payer.status === "bankrupt" ? 1 : 0
       }
     };

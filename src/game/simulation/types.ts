@@ -32,7 +32,7 @@ export interface SimulationPlayer {
 
 export interface SimulationMetricDelta {
   stationPurchases: number;
-  rentPayments: number;
+  transportFarePayments: number;
   bankruptcies: number;
   cashTileAwards: number;
 }

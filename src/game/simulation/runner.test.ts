@@ -15,6 +15,21 @@ const CASH_ONLY_TIMED_PRESET = {
   ]
 };
 
+const SINGLE_STATION_PRESET = {
+  id: "single-station",
+  label: "Single Station",
+  board: [
+    {
+      type: "station" as const,
+      id: "city-hall",
+      name: "City Hall",
+      price: 10,
+      baseRent: 1,
+      ownerId: null
+    }
+  ]
+};
+
 describe("runSimulationBatch", () => {
   test("advances each player from their current position across turns", () => {
     const customPreset = {
@@ -83,7 +98,8 @@ describe("runSimulationBatch", () => {
         endCondition: "FIXED_ROUNDS",
         fixedRoundLimit: 2,
         targetWealth: 8000,
-        initialCash: 1500
+        initialCash: 1500,
+        transportFareRate: 25
       },
       maxTurnsPerGame: 100,
       diceValueProvider: () => 1
@@ -104,7 +120,8 @@ describe("runSimulationBatch", () => {
         endCondition: "FIXED_ROUNDS",
         fixedRoundLimit: 1,
         targetWealth: 8000,
-        initialCash: 1500
+        initialCash: 1500,
+        transportFareRate: 25
       },
       maxTurnsPerGame: 100,
       diceValueProvider: () => 1
@@ -112,5 +129,29 @@ describe("runSimulationBatch", () => {
 
     expect(result.seatWinCounts).toEqual([0, 0]);
     expect(result.totalTies).toBe(1);
+  });
+
+  test("uses the rolled die value as travel steps for transport fare", () => {
+    const result = runSimulationBatch({
+      preset: SINGLE_STATION_PRESET,
+      gameCount: 1,
+      seed: 20260314,
+      playerCount: 2,
+      simulationConfig: {
+        endCondition: "FIXED_ROUNDS",
+        fixedRoundLimit: 1,
+        targetWealth: 8000,
+        initialCash: 50,
+        transportFareRate: 25
+      },
+      policy: {
+        safetyThreshold: 0
+      },
+      maxTurnsPerGame: 10,
+      diceValueProvider: () => 3
+    });
+
+    expect(result.totalTransportFarePayments).toBe(1);
+    expect(result.totalBankruptcies).toBe(1);
   });
 });

@@ -16,7 +16,7 @@ function createSummary(
     averageEndingCash: 1320.5,
     averageEndingNetWorth: 2440.25,
     totalStationPurchases: 61,
-    totalRentPayments: 33,
+    totalTransportFarePayments: 33,
     totalBankruptcies: 4,
     totalLeadChanges: 17,
     tileLandingCounts: {
@@ -45,6 +45,7 @@ describe("formatSimulationReport", () => {
     expect(output).not.toContain("20 minutes");
     expect(output).toContain("Average rounds");
     expect(output).toContain("Ties: 3 (6.0%)");
+    expect(output).toContain("Transport fare payments: 33");
     expect(output).toContain("Top landings: jurong-east 12, cash-top-up 0");
   });
 });

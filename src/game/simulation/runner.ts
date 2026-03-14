@@ -1,4 +1,5 @@
 import { calculateNetWorth } from "../rules/economy";
+import { DEFAULT_TRANSPORT_FARE_RATE } from "../constants/economyDefaults";
 import { evaluateEndCondition } from "../rules/endConditions";
 import type { EndConditionResolution } from "../rules/endConditions";
 import { movePosition } from "../rules/movement";
@@ -18,18 +19,20 @@ const DEFAULT_POLICY: PurchasePolicy = {
   safetyThreshold: 200
 };
 
-interface SimulationConfig {
+export interface SimulationConfig {
   endCondition: EndConditionMode;
   fixedRoundLimit: number;
   targetWealth: number;
   initialCash: number;
+  transportFareRate: number;
 }
 
 const DEFAULT_CONFIG: SimulationConfig = {
   endCondition: "LAST_PLAYER_STANDING",
   fixedRoundLimit: 12,
   targetWealth: 8000,
-  initialCash: 1500
+  initialCash: 1500,
+  transportFareRate: DEFAULT_TRANSPORT_FARE_RATE
 };
 
 const DEFAULT_PLAYER_COUNT = 2;
@@ -39,7 +42,7 @@ interface RunSimulationBatchInput {
   preset: SimulationPreset;
   gameCount: number;
   seed: number;
-  simulationConfig?: SimulationConfig;
+  simulationConfig?: Partial<SimulationConfig>;
   playerCount?: number;
   policy?: PurchasePolicy;
   maxTurnsPerGame?: number;
@@ -55,7 +58,7 @@ export interface SimulationBatchSummary {
   averageEndingCash: number;
   averageEndingNetWorth: number;
   totalStationPurchases: number;
-  totalRentPayments: number;
+  totalTransportFarePayments: number;
   totalBankruptcies: number;
   totalLeadChanges: number;
   tileLandingCounts: Record<string, number>;
@@ -70,7 +73,7 @@ interface SingleGameSummary {
   endingCashTotal: number;
   endingNetWorthTotal: number;
   stationPurchases: number;
-  rentPayments: number;
+  transportFarePayments: number;
   bankruptcies: number;
   leadChanges: number;
   tileLandingCounts: Record<string, number>;
@@ -158,6 +161,15 @@ function getRichestPlayerId(players: SimulationPlayer[], board: SimulationTile[]
   )[0].id;
 }
 
+function resolveSimulationConfig(
+  simulationConfig?: Partial<SimulationConfig>
+): SimulationConfig {
+  return {
+    ...DEFAULT_CONFIG,
+    ...simulationConfig
+  };
+}
+
 function simulateGame(
   preset: SimulationPreset,
   seed: number,
@@ -176,7 +188,7 @@ function simulateGame(
   let turnIndex = 0;
   let round = 1;
   let totalStationPurchases = 0;
-  let totalRentPayments = 0;
+  let totalTransportFarePayments = 0;
   let totalBankruptcies = 0;
   let totalLeadChanges = 0;
   let totalCashTileAwards = 0;
@@ -205,6 +217,8 @@ function simulateGame(
         player: currentPlayer,
         owner,
         tile,
+        travelSteps: dieValue,
+        transportFareRate: simulationConfig.transportFareRate,
         policy
       });
 
@@ -229,7 +243,7 @@ function simulateGame(
       }
 
       totalStationPurchases += result.metrics.stationPurchases;
-      totalRentPayments += result.metrics.rentPayments;
+      totalTransportFarePayments += result.metrics.transportFarePayments;
       totalBankruptcies += result.metrics.bankruptcies;
       totalCashTileAwards += result.metrics.cashTileAwards;
 
@@ -290,7 +304,7 @@ function simulateGame(
     endingCashTotal: players.reduce((sum, player) => sum + player.cash, 0),
     endingNetWorthTotal: players.reduce((sum, player) => sum + getNetWorth(player, board), 0),
     stationPurchases: totalStationPurchases,
-    rentPayments: totalRentPayments,
+    transportFarePayments: totalTransportFarePayments,
     bankruptcies: totalBankruptcies,
     leadChanges: totalLeadChanges,
     tileLandingCounts,
@@ -301,7 +315,7 @@ function simulateGame(
 
 export function runSimulationBatch(input: RunSimulationBatchInput): SimulationBatchSummary {
   const playerCount = input.playerCount ?? DEFAULT_PLAYER_COUNT;
-  const simulationConfig = input.simulationConfig ?? DEFAULT_CONFIG;
+  const simulationConfig = resolveSimulationConfig(input.simulationConfig);
   const policy = input.policy ?? DEFAULT_POLICY;
   const maxTurnsPerGame = input.maxTurnsPerGame ?? MAX_TURNS_PER_GAME;
   const seatWinCounts = Array.from({ length: playerCount }, () => 0);
@@ -312,7 +326,7 @@ export function runSimulationBatch(input: RunSimulationBatchInput): SimulationBa
   let totalEndingCash = 0;
   let totalEndingNetWorth = 0;
   let totalStationPurchases = 0;
-  let totalRentPayments = 0;
+  let totalTransportFarePayments = 0;
   let totalBankruptcies = 0;
   let totalLeadChanges = 0;
   let totalCashTileAwards = 0;
@@ -339,7 +353,7 @@ export function runSimulationBatch(input: RunSimulationBatchInput): SimulationBa
     totalEndingCash += summary.endingCashTotal;
     totalEndingNetWorth += summary.endingNetWorthTotal;
     totalStationPurchases += summary.stationPurchases;
-    totalRentPayments += summary.rentPayments;
+    totalTransportFarePayments += summary.transportFarePayments;
     totalBankruptcies += summary.bankruptcies;
     totalLeadChanges += summary.leadChanges;
     totalCashTileAwards += summary.cashTileAwards;
@@ -359,7 +373,7 @@ export function runSimulationBatch(input: RunSimulationBatchInput): SimulationBa
     averageEndingCash: totalEndingCash / (input.gameCount * playerCount),
     averageEndingNetWorth: totalEndingNetWorth / (input.gameCount * playerCount),
     totalStationPurchases,
-    totalRentPayments,
+    totalTransportFarePayments,
     totalBankruptcies,
     totalLeadChanges,
     tileLandingCounts,
