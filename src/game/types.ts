@@ -45,5 +45,6 @@ export interface GameState {
   phase: "setup" | "roll" | "resolve_tile" | "turn_end" | "completed";
   pendingMessage: string | null;
   winnerId: string | null;
+  remainingTimeMs: number | null;
   actionLog: string[];
 }

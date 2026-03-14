@@ -3,12 +3,6 @@ import { getRandomDogBreedNames } from "../defaultPlayerNames";
 import type { GameConfig, GameState, Player } from "../types";
 import { PLAYER_COLOR_OPTIONS, PLAYER_ICON_OPTIONS } from "../../features/players/playerAppearance";
 
-declare module "../types" {
-  interface GameState {
-    remainingTimeMs: number | null;
-  }
-}
-
 const DEFAULT_CONFIG: GameConfig = {
   mode: "CLASSIC",
   endCondition: "LAST_PLAYER_STANDING",
