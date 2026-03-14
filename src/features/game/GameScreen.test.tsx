@@ -59,11 +59,24 @@ describe("GameScreen", () => {
   });
 
   test("shows compact station labels while keeping board data visible", () => {
-    render(<GameScreen initial={initialState} />);
+    const { container } = render(<GameScreen initial={initialState} />);
+    const boardPanel = container.querySelector(".game-board-panel");
+    expect(boardPanel).toBeTruthy();
+
+    const jurongEastName = within(boardPanel as HTMLElement).getAllByText("Jurong East")[0];
+    const priceLabel = screen.getAllByText("$280")[0];
+    const rentLabel = screen.getAllByText("Rent 28")[0];
+    const ownerLabel = screen.getAllByText(/Owner none/i)[0];
 
     expect(screen.getAllByText("$280").length).toBeGreaterThan(0);
     expect(screen.getAllByText("Rent 28").length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Owner none/i).length).toBeGreaterThan(0);
+    expect(screen.queryAllByText("East West Line")).toHaveLength(0);
+    expect(screen.queryAllByText("Circle Line")).toHaveLength(0);
+    expect(getComputedStyle(jurongEastName).fontSize).toBe("15px");
+    expect(getComputedStyle(priceLabel).fontSize).toBe("12px");
+    expect(getComputedStyle(rentLabel).fontSize).toBe("12px");
+    expect(getComputedStyle(ownerLabel).fontSize).toBe("12px");
   });
 
   test("shows the updated 25-station board count", () => {

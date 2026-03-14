@@ -2,7 +2,6 @@ import type { GameState } from "../../game/types";
 import { PlayerTokenBadge } from "../players/playerAppearance";
 import {
   getLineBadge,
-  getLineLabel,
   getLineThemeClass
 } from "./lineBranding";
 
@@ -31,7 +30,6 @@ export function BoardView({ state, animatedMovement = null }: BoardViewProps) {
             return player.position === index;
           });
           const lineThemeClass = getLineThemeClass(tile.line);
-          const lineLabel = getLineLabel(tile.line);
           return (
             <li key={tile.id} className={`board-tile ${lineThemeClass}`}>
               <div className="station-head">
@@ -42,7 +40,6 @@ export function BoardView({ state, animatedMovement = null }: BoardViewProps) {
                 />
                 <div className="station-heading">
                   <strong>{tile.name}</strong>
-                  <div className="station-sub">{lineLabel}</div>
                 </div>
               </div>
               <div className="station-metrics">
