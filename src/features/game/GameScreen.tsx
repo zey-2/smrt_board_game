@@ -6,7 +6,6 @@ import type { GameState } from "../../game/types";
 import type { GameAction } from "../../game/state/actions";
 import { reducer } from "../../game/state/reducer";
 import { BoardView } from "./BoardView";
-import { PassDeviceOverlay } from "./PassDeviceOverlay";
 import { PlayerPanel } from "./PlayerPanel";
 import { WinnerScreen } from "../results/WinnerScreen";
 import { TurnControls } from "./TurnControls";
@@ -25,7 +24,7 @@ export function GameScreen({
   onExitWithoutSave = () => {}
 }: GameScreenProps) {
   const [state, dispatch] = useReducer(reducer, initial);
-  const [showPassOverlay, setShowPassOverlay] = useState(false);
+  const [showTurnHandoff, setShowTurnHandoff] = useState(false);
   const [movementPlayback, setMovementPlayback] = useState<{
     playerId: string;
     path: number[];
@@ -88,7 +87,7 @@ export function GameScreen({
 
     dispatch(action);
     if (action.type === "END_TURN") {
-      setShowPassOverlay(true);
+      setShowTurnHandoff(true);
     }
   };
 
@@ -136,6 +135,9 @@ export function GameScreen({
             onDispatch={handleDispatch}
             diceValueProvider={diceValueProvider}
             isMovementInProgress={isMovementInProgress}
+            showTurnHandoff={showTurnHandoff}
+            nextPlayerName={nextPlayerName}
+            onStartTurn={() => setShowTurnHandoff(false)}
             onExitWithSave={() => onExitWithSave(state)}
             onExitWithoutSave={onExitWithoutSave}
           />
@@ -144,9 +146,6 @@ export function GameScreen({
       </div>
       {isCompleted ? (
         <WinnerScreen winnerName={winnerName} ranking={ranking} />
-      ) : null}
-      {showPassOverlay ? (
-        <PassDeviceOverlay nextPlayerName={nextPlayerName} onContinue={() => setShowPassOverlay(false)} />
       ) : null}
     </section>
   );

@@ -6,6 +6,9 @@ interface TurnControlsProps {
   onDispatch: (action: GameAction) => void;
   diceValueProvider: () => number;
   isMovementInProgress: boolean;
+  showTurnHandoff: boolean;
+  nextPlayerName: string;
+  onStartTurn: () => void;
   onExitWithSave: () => void;
   onExitWithoutSave: () => void;
 }
@@ -15,6 +18,9 @@ export function TurnControls({
   onDispatch,
   diceValueProvider,
   isMovementInProgress,
+  showTurnHandoff,
+  nextPlayerName,
+  onStartTurn,
   onExitWithSave,
   onExitWithoutSave
 }: TurnControlsProps) {
@@ -27,49 +33,61 @@ export function TurnControls({
   return (
     <section className="card control-panel">
       <h3>Turn Controls</h3>
-      <div className="control-summary">
-        <p>
-          <span>Now</span>
-          <strong>{player.name}</strong>
-        </p>
-        <p>
-          <span>Tile</span>
-          <strong>{tile.name}</strong>
-        </p>
-      </div>
-      <div className="inline-actions">
-        {state.phase === "roll" ? (
-          <button
-            className="primary-button"
-            type="button"
-            onClick={() =>
-              onDispatch({
-                type: "ROLL_DICE",
-                payload: { value: diceValueProvider() }
-              })
-            }
-          >
-            Roll Dice
+      {showTurnHandoff ? (
+        <div className="turn-handoff-card">
+          <h4>Pass device to {nextPlayerName}</h4>
+          <p>Hide your strategy and hand the device to the next player.</p>
+          <button className="primary-button" type="button" onClick={onStartTurn}>
+            Start Turn
           </button>
-        ) : null}
+        </div>
+      ) : (
+        <>
+          <div className="control-summary">
+            <p>
+              <span>Now</span>
+              <strong>{player.name}</strong>
+            </p>
+            <p>
+              <span>Tile</span>
+              <strong>{tile.name}</strong>
+            </p>
+          </div>
+          <div className="inline-actions">
+            {state.phase === "roll" ? (
+              <button
+                className="primary-button"
+                type="button"
+                onClick={() =>
+                  onDispatch({
+                    type: "ROLL_DICE",
+                    payload: { value: diceValueProvider() }
+                  })
+                }
+              >
+                Roll Dice
+              </button>
+            ) : null}
 
-        {showResolveActions ? (
-          <>
-            <button type="button" onClick={() => onDispatch({ type: "BUY_STATION" })} disabled={!canBuy}>
-              Buy Station
-            </button>
-            <button className="accent-button" type="button" onClick={() => onDispatch({ type: "SKIP_PURCHASE" })}>
-              Skip Purchase
-            </button>
-          </>
-        ) : null}
+            {showResolveActions ? (
+              <>
+                <button type="button" onClick={() => onDispatch({ type: "BUY_STATION" })} disabled={!canBuy}>
+                  Buy Station
+                </button>
+                <button className="accent-button" type="button" onClick={() => onDispatch({ type: "SKIP_PURCHASE" })}>
+                  Skip Purchase
+                </button>
+              </>
+            ) : null}
 
-        {state.phase === "turn_end" ? (
-          <button className="primary-button" type="button" onClick={() => onDispatch({ type: "END_TURN" })}>
-            End Turn
-          </button>
-        ) : null}
-      </div>
+            {state.phase === "turn_end" ? (
+              <button className="primary-button" type="button" onClick={() => onDispatch({ type: "END_TURN" })}>
+                End Turn
+              </button>
+            ) : null}
+          </div>
+        </>
+      )}
       <div className="inline-actions exit-actions">
         <button type="button" onClick={onExitWithSave}>
           Save

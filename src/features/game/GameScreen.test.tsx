@@ -157,4 +157,38 @@ describe("GameScreen", () => {
     expect(screen.getByRole("button", { name: "Buy Station" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Skip Purchase" })).toBeInTheDocument();
   });
+
+  test("shows an inline handoff card after ending a turn and hides normal turn actions", async () => {
+    const user = userEvent.setup();
+    const turnEndState = {
+      ...initialState,
+      phase: "turn_end" as const
+    };
+
+    render(<GameScreen initial={turnEndState} />);
+
+    await user.click(screen.getByRole("button", { name: "End Turn" }));
+
+    expect(screen.getByText(`Pass device to ${initialState.players[1].name}`)).toBeInTheDocument();
+    expect(screen.getByText("Hide your strategy and hand the device to the next player.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Start Turn" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Roll Dice" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+  });
+
+  test("reveals the next player's turn controls after start turn is clicked", async () => {
+    const user = userEvent.setup();
+    const turnEndState = {
+      ...initialState,
+      phase: "turn_end" as const
+    };
+
+    render(<GameScreen initial={turnEndState} />);
+
+    await user.click(screen.getByRole("button", { name: "End Turn" }));
+    await user.click(screen.getByRole("button", { name: "Start Turn" }));
+
+    expect(screen.queryByText(/Pass device to/i)).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Roll Dice" })).toBeInTheDocument();
+  });
 });
