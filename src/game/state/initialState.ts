@@ -1,4 +1,5 @@
 import { KEY_STATIONS_PRESET } from "../constants/stations";
+import { getRandomDogBreedNames } from "../defaultPlayerNames";
 import type { GameConfig, GameState, Player } from "../types";
 
 const DEFAULT_CONFIG: GameConfig = {
@@ -8,26 +9,18 @@ const DEFAULT_CONFIG: GameConfig = {
   initialCash: 1500
 };
 
-const DEFAULT_PLAYERS: Player[] = [
-  {
-    id: "p1",
-    name: "Player 1",
+function createDefaultPlayers(): Player[] {
+  return getRandomDogBreedNames(2).map((name, index) => ({
+    id: `p${index + 1}`,
+    name,
     cash: 1500,
     position: 0,
     ownedStationIds: [],
     status: "active"
-  },
-  {
-    id: "p2",
-    name: "Player 2",
-    cash: 1500,
-    position: 0,
-    ownedStationIds: [],
-    status: "active"
-  }
-];
+  }));
+}
 
-export function createGameState(players = DEFAULT_PLAYERS, config = DEFAULT_CONFIG): GameState {
+export function createGameState(players = createDefaultPlayers(), config = DEFAULT_CONFIG): GameState {
   return {
     config,
     players,

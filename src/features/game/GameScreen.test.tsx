@@ -97,6 +97,7 @@ describe("GameScreen", () => {
   test("shows the active player on an intermediate station before the destination", async () => {
     vi.useFakeTimers();
     const { container } = render(<GameScreen initial={initialState} diceValueProvider={() => 3} />);
+    const activePlayerName = initialState.players[0].name;
 
     fireEvent.click(screen.getByRole("button", { name: "Roll Dice" }));
 
@@ -105,12 +106,12 @@ describe("GameScreen", () => {
     expect(boardPanel).toBeTruthy();
     const queenstownTile = within(boardPanel as HTMLElement).getByText("Queenstown").closest("li");
     expect(queenstownTile).toBeTruthy();
-    expect(within(boardPanel as HTMLElement).getAllByText("Player 1")).toHaveLength(1);
-    expect(within(queenstownTile as HTMLElement).queryByText("Player 1")).not.toBeInTheDocument();
+    expect(within(boardPanel as HTMLElement).getAllByText(activePlayerName)).toHaveLength(1);
+    expect(within(queenstownTile as HTMLElement).queryByText(activePlayerName)).not.toBeInTheDocument();
 
     await advancePlaybackFrames(4);
 
-    expect(within(queenstownTile as HTMLElement).getByText("Player 1")).toBeInTheDocument();
+    expect(within(queenstownTile as HTMLElement).getByText(activePlayerName)).toBeInTheDocument();
   });
 
   test("waits for movement playback before showing tile resolution actions", async () => {

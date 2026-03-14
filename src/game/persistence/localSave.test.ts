@@ -15,7 +15,7 @@ describe("localSave", () => {
     saveGameState(initialState);
     const loaded = loadGameState();
     expect(loaded?.round).toBe(initialState.round);
-    expect(loaded?.players[0].name).toBe("Player 1");
+    expect(loaded?.players[0].name).toBe(initialState.players[0].name);
   });
 
   test("returns null for malformed stored state", () => {

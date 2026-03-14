@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { END_CONDITION_OPTIONS } from "../../game/constants/endConditions";
+import { getRandomDogBreedNames } from "../../game/defaultPlayerNames";
 import type { EndConditionMode, GameConfig, Player } from "../../game/types";
 import { validateAndBuildSetup } from "./setupValidation";
 
@@ -12,11 +13,10 @@ interface SetupScreenProps {
   onStart: (payload: SetupPayload) => void;
 }
 
-const DEFAULT_NAMES = ["Player 1", "Player 2"];
 const DEFAULT_END_CONDITION: EndConditionMode = "LAST_PLAYER_STANDING";
 
 export function SetupScreen({ onStart }: SetupScreenProps) {
-  const [names, setNames] = useState<string[]>(DEFAULT_NAMES);
+  const [names, setNames] = useState<string[]>(() => getRandomDogBreedNames(2));
   const [endCondition, setEndCondition] = useState<EndConditionMode>(DEFAULT_END_CONDITION);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +27,7 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
     const nextNames = [...names];
     if (nextCount > names.length) {
       while (nextNames.length < nextCount) {
-        nextNames.push(`Player ${nextNames.length + 1}`);
+        nextNames.push(...getRandomDogBreedNames(1, { excludeNames: nextNames }));
       }
     } else if (nextCount < names.length) {
       nextNames.length = nextCount;

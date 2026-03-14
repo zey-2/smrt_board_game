@@ -1,9 +1,13 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { SetupScreen } from "./SetupScreen";
 
 describe("SetupScreen", () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   test("shows one shared end condition selector with last player standing as the default", async () => {
     const onStart = vi.fn();
     const user = userEvent.setup();
@@ -19,6 +23,26 @@ describe("SetupScreen", () => {
     await user.click(startButton);
     expect(onStart).toHaveBeenCalledTimes(1);
     expect(onStart.mock.calls[0][0].config.endCondition).toBe("LAST_PLAYER_STANDING");
+  });
+
+  test("prefills player names with dog breeds", () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+
+    render(<SetupScreen onStart={() => undefined} />);
+
+    expect(screen.getByLabelText("Player 1 name")).toHaveValue("Beagle");
+    expect(screen.getByLabelText("Player 2 name")).toHaveValue("Corgi");
+  });
+
+  test("adds another dog breed when increasing the player count", async () => {
+    vi.spyOn(Math, "random").mockReturnValue(0);
+    const user = userEvent.setup();
+
+    render(<SetupScreen onStart={() => undefined} />);
+
+    await user.click(screen.getByRole("button", { name: "Add Player" }));
+
+    expect(screen.getByLabelText("Player 3 name")).toHaveValue("Dachshund");
   });
 
   test("uses the shared end condition selector value when starting the game", async () => {
