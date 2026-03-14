@@ -53,6 +53,7 @@ export default function App() {
               <p>Transit-map inspired board game</p>
             </div>
           </header>
+          <SetupScreen onStart={handleStart} />
           {savedState ? (
             <section className="card setup-card">
               <h2>Saved Game Found</h2>
@@ -66,7 +67,6 @@ export default function App() {
               </div>
             </section>
           ) : null}
-          <SetupScreen onStart={handleStart} />
         </>
       ) : (
         <GameScreen

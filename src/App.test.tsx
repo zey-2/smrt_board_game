@@ -41,6 +41,20 @@ test("exits to setup and keeps a saved game available", async () => {
   expect(screen.getByRole("button", { name: "Resume Saved Game" })).toBeInTheDocument();
 });
 
+test("renders the saved game section below game setup", async () => {
+  const user = userEvent.setup();
+  render(<App />);
+
+  await user.selectOptions(screen.getByLabelText("End condition"), "LAST_PLAYER_STANDING");
+  await user.click(screen.getByRole("button", { name: "Start Game" }));
+  await user.click(screen.getByRole("button", { name: "Save" }));
+
+  const setupHeading = screen.getByRole("heading", { level: 2, name: "Game Setup" });
+  const savedGameHeading = screen.getByRole("heading", { level: 2, name: "Saved Game Found" });
+
+  expect(setupHeading.compareDocumentPosition(savedGameHeading) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+});
+
 test("exits to setup and clears the saved game when requested", async () => {
   const user = userEvent.setup();
   render(<App />);
