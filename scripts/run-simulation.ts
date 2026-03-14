@@ -1,7 +1,7 @@
 import {
-  buildGameConfigFromGameLengthPreset,
-  GAME_LENGTH_PRESETS
-} from "../src/game/constants/gameLengthPresets";
+  FIXED_ROUND_OPTIONS,
+  buildGameConfigFromModeSelection
+} from "../src/game/constants/gameModeOptions";
 import { BASELINE_SIMULATION_PRESET } from "../src/game/simulation/presets";
 import { formatSimulationReport } from "../src/game/simulation/report";
 import { runSimulationBatch } from "../src/game/simulation/runner";
@@ -44,15 +44,29 @@ function parseCliOptions(argv: string[]): CliOptions {
 
 function main() {
   const options = parseCliOptions(process.argv.slice(2));
-  const summaries = GAME_LENGTH_PRESETS.map((preset) => ({
+  const summaries = [
+    {
+      label: "Classic mode",
+      simulationConfig: buildGameConfigFromModeSelection({
+        modeId: "CLASSIC"
+      })
+    },
+    ...FIXED_ROUND_OPTIONS.map((option) => ({
+      label: option.label,
+      simulationConfig: buildGameConfigFromModeSelection({
+        modeId: "FIXED_ROUNDS",
+        fixedRoundOptionId: option.id
+      })
+    }))
+  ].map(({ label, simulationConfig }) => ({
     ...runSimulationBatch({
       preset: BASELINE_SIMULATION_PRESET,
       gameCount: options.games,
       seed: options.seed,
       playerCount: 2,
-      simulationConfig: buildGameConfigFromGameLengthPreset(preset.id)
+      simulationConfig
     }),
-    label: preset.label
+    label
   }));
 
   console.log(formatSimulationReport(summaries));
