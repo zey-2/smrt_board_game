@@ -88,12 +88,13 @@ describe("reducer", () => {
       ],
       initialState.config
     );
+    const expectedFare = 3 * state.config.transportFareRate;
 
     const next = reducer({ ...state, board }, { type: "ROLL_DICE", payload: { value: 3 } });
 
     expect(next.players[0].position).toBe(3);
-    expect(next.players[0].cash).toBe(425);
-    expect(next.players[1].cash).toBe(775);
+    expect(next.players[0].cash).toBe(500 - expectedFare);
+    expect(next.players[1].cash).toBe(700 + expectedFare);
     expect(next.phase).toBe("turn_end");
     expect(next.pendingMessage).toContain("transport fare");
   });
