@@ -66,6 +66,12 @@ describe("GameScreen", () => {
     expect(screen.getAllByText(/Owner none/i).length).toBeGreaterThan(0);
   });
 
+  test("shows the updated 25-station board count", () => {
+    render(<GameScreen initial={initialState} />);
+
+    expect(screen.getByText("25 stations")).toBeInTheDocument();
+  });
+
   test("does not render interchange badges on station tiles", () => {
     render(<GameScreen initial={initialState} />);
 

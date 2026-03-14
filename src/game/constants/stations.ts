@@ -12,6 +12,7 @@ const STATIONS: Omit<StationTile, "ownerId">[] = [
   { id: "yishun", name: "Yishun", line: "NSL", price: 220, baseRent: 22, group: "north" },
   { id: "bishan", name: "Bishan", line: "NSL", price: 300, baseRent: 30, group: "central-hub" },
   { id: "orchard", name: "Orchard", line: "NSL", price: 340, baseRent: 34, group: "prime" },
+  { id: "dhoby-ghaut", name: "Dhoby Ghaut", line: "NSL", price: 320, baseRent: 32, group: "central-hub" },
   { id: "city-hall", name: "City Hall", line: "NSL", price: 360, baseRent: 36, group: "core-cbd" },
   { id: "marina-south-pier", name: "Marina South Pier", line: "NSL", price: 260, baseRent: 26, group: "south" },
   { id: "harbourfront", name: "HarbourFront", line: "CCL", price: 280, baseRent: 28, group: "harbour" },
