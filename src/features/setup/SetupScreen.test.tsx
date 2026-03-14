@@ -9,14 +9,14 @@ describe("SetupScreen", () => {
     vi.restoreAllMocks();
   });
 
-  test("shows one shared game length selector with 20 minutes as the default", async () => {
+  test("defaults to timed mode with a 20-minute limit", async () => {
     const onStart = vi.fn();
     const user = userEvent.setup();
     render(<SetupScreen onStart={onStart} />);
 
-    const gameLengthSelect = screen.getByLabelText("Game length");
-    expect(gameLengthSelect).toHaveValue("MINUTES_20");
-    expect(screen.queryByLabelText("End condition")).not.toBeInTheDocument();
+    expect(screen.getByLabelText("Mode")).toHaveValue("TIMED");
+    expect(screen.getByLabelText("Time limit")).toHaveValue("MINUTES_20");
+    expect(screen.queryByLabelText("Round limit")).not.toBeInTheDocument();
 
     const startButton = screen.getByRole("button", { name: "Start Game" });
     expect(startButton).toBeEnabled();
@@ -25,7 +25,7 @@ describe("SetupScreen", () => {
     expect(onStart).toHaveBeenCalledTimes(1);
     expect(onStart.mock.calls[0][0].config).toMatchObject({
       mode: "TIMED",
-      endCondition: "FIXED_ROUNDS",
+      endCondition: "LAST_PLAYER_STANDING",
       timeLimitSeconds: 1200,
       fixedRoundLimit: 12
     });
@@ -51,7 +51,7 @@ describe("SetupScreen", () => {
     expect(screen.getByLabelText("Player 3 name")).toHaveValue("Dachshund");
   });
 
-  test("uses classic mode when the player selects the classic game length option", async () => {
+  test("switches to fixed-round controls and starts a fixed-round game", async () => {
     const onStart = vi.fn();
     const user = userEvent.setup();
     render(<SetupScreen onStart={onStart} />);
@@ -59,70 +59,41 @@ describe("SetupScreen", () => {
     const startButton = screen.getByRole("button", { name: "Start Game" });
     expect(startButton).toBeEnabled();
 
-    await user.selectOptions(screen.getByLabelText("Game length"), "CLASSIC");
+    await user.selectOptions(screen.getByLabelText("Mode"), "FIXED_ROUNDS");
+    expect(screen.getByLabelText("Round limit")).toHaveValue("ROUNDS_12");
+    expect(screen.queryByLabelText("Time limit")).not.toBeInTheDocument();
+
+    await user.selectOptions(screen.getByLabelText("Round limit"), "ROUNDS_9");
 
     await user.click(startButton);
     expect(onStart).toHaveBeenCalledTimes(1);
     expect(onStart.mock.calls[0][0].config).toMatchObject({
-      endCondition: "LAST_PLAYER_STANDING"
-    });
-  });
-
-  test("shows a note that timed presets are calibrated for 2-player games when player count is above 2", async () => {
-    const user = userEvent.setup();
-    render(<SetupScreen onStart={() => undefined} />);
-
-    expect(
-      screen.queryByText("Timed presets are calibrated for 2-player games. Larger games may run longer.")
-    ).not.toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "Add Player" }));
-
-    expect(
-      screen.getByText("Timed presets are calibrated for 2-player games. Larger games may run longer.")
-    ).toBeInTheDocument();
-  });
-
-  test("uses the 10-minute game length option when starting the game", async () => {
-    const onStart = vi.fn();
-    const user = userEvent.setup();
-    render(<SetupScreen onStart={onStart} />);
-
-    await user.selectOptions(screen.getByLabelText("Game length"), "MINUTES_10");
-    await user.click(screen.getByRole("button", { name: "Start Game" }));
-
-    expect(onStart.mock.calls[0][0].config).toMatchObject({
+      mode: "FIXED_ROUNDS",
       endCondition: "FIXED_ROUNDS",
-      fixedRoundLimit: 6
-    });
-  });
-
-  test("uses the 15-minute game length option when starting the game", async () => {
-    const onStart = vi.fn();
-    const user = userEvent.setup();
-    render(<SetupScreen onStart={onStart} />);
-
-    await user.selectOptions(screen.getByLabelText("Game length"), "MINUTES_15");
-    await user.click(screen.getByRole("button", { name: "Start Game" }));
-
-    expect(onStart.mock.calls[0][0].config).toMatchObject({
-      endCondition: "FIXED_ROUNDS",
+      timeLimitSeconds: null,
       fixedRoundLimit: 9
     });
   });
 
-  test("uses the 30-minute game length option when starting the game", async () => {
-    const onStart = vi.fn();
+  test("hides secondary limit selectors in classic mode", async () => {
     const user = userEvent.setup();
-    render(<SetupScreen onStart={onStart} />);
+    render(<SetupScreen onStart={() => undefined} />);
 
-    await user.selectOptions(screen.getByLabelText("Game length"), "MINUTES_30");
-    await user.click(screen.getByRole("button", { name: "Start Game" }));
+    await user.selectOptions(screen.getByLabelText("Mode"), "CLASSIC");
 
-    expect(onStart.mock.calls[0][0].config).toMatchObject({
-      endCondition: "FIXED_ROUNDS",
-      fixedRoundLimit: 18
-    });
+    expect(screen.queryByLabelText("Time limit")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Round limit")).not.toBeInTheDocument();
+  });
+
+  test("does not show the old timed-preset calibration message", async () => {
+    const user = userEvent.setup();
+    render(<SetupScreen onStart={() => undefined} />);
+
+    await user.click(screen.getByRole("button", { name: "Add Player" }));
+
+    expect(
+      screen.queryByText("Timed presets are calibrated for 2-player games. Larger games may run longer.")
+    ).not.toBeInTheDocument();
   });
 
   test("does not show the board preset text on the setup screen", () => {
@@ -193,8 +164,10 @@ describe("SetupScreen", () => {
         { name: "Beagle", iconId: "circle", colorId: "navy" },
         { name: "Corgi", iconId: "square", colorId: "purple" }
       ],
+      mode: "CLASSIC",
       endCondition: "LAST_PLAYER_STANDING",
       initialCash: 1500,
+      timeLimitSeconds: null,
       fixedRoundLimit: 12,
       targetWealth: 8000
     });
@@ -212,8 +185,10 @@ describe("SetupScreen", () => {
         { name: "Beagle", iconId: "circle", colorId: "navy" },
         { name: "Corgi", iconId: "circle", colorId: "navy" }
       ],
+      mode: "CLASSIC",
       endCondition: "LAST_PLAYER_STANDING",
       initialCash: 1500,
+      timeLimitSeconds: null,
       fixedRoundLimit: 12,
       targetWealth: 8000
     });

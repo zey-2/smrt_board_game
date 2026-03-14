@@ -1,10 +1,16 @@
 import { useState } from "react";
 import {
-  DEFAULT_GAME_LENGTH_PRESET_ID,
-  GAME_LENGTH_PRESETS,
-  buildGameConfigFromGameLengthPreset,
-  type GameLengthPresetId
-} from "../../game/constants/gameLengthPresets";
+  DEFAULT_FIXED_ROUND_OPTION_ID,
+  DEFAULT_GAME_MODE_ID,
+  DEFAULT_TIMED_MODE_OPTION_ID,
+  FIXED_ROUND_OPTIONS,
+  GAME_MODE_OPTIONS,
+  TIMED_MODE_OPTIONS,
+  buildGameConfigFromModeSelection,
+  type FixedRoundOptionId,
+  type GameModeId,
+  type TimedModeOptionId
+} from "../../game/constants/gameModeOptions";
 import { getRandomDogBreedNames } from "../../game/defaultPlayerNames";
 import type { GameConfig, Player } from "../../game/types";
 import {
@@ -37,9 +43,12 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
   const [players, setPlayers] = useState<SetupPlayerDraft[]>(() =>
     getRandomDogBreedNames(2).map((name, index) => createSetupPlayer(name, index))
   );
-  const [selectedGameLength, setSelectedGameLength] = useState<GameLengthPresetId>(
-    DEFAULT_GAME_LENGTH_PRESET_ID
+  const [selectedMode, setSelectedMode] = useState<GameModeId>(DEFAULT_GAME_MODE_ID);
+  const [selectedTimedOption, setSelectedTimedOption] = useState<TimedModeOptionId>(
+    DEFAULT_TIMED_MODE_OPTION_ID
   );
+  const [selectedFixedRoundOption, setSelectedFixedRoundOption] =
+    useState<FixedRoundOptionId>(DEFAULT_FIXED_ROUND_OPTION_ID);
   const [error, setError] = useState<string | null>(null);
 
   const canAddPlayer = players.length < 4;
@@ -86,16 +95,12 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
   };
 
   const handleStart = () => {
-    const config = buildGameConfigFromGameLengthPreset(selectedGameLength);
-    const result = validateAndBuildSetup({
-      players,
-      mode: config.mode,
-      endCondition: config.endCondition,
-      initialCash: config.initialCash,
-      timeLimitSeconds: config.timeLimitSeconds,
-      fixedRoundLimit: config.fixedRoundLimit,
-      targetWealth: config.targetWealth
+    const config = buildGameConfigFromModeSelection({
+      modeId: selectedMode,
+      timedOptionId: selectedTimedOption,
+      fixedRoundOptionId: selectedFixedRoundOption
     });
+    const result = validateAndBuildSetup({ players, ...config });
 
     if (result.error) {
       setError(result.error);
@@ -127,22 +132,56 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
       </div>
 
       <label>
-        Game length
+        Mode
         <select
-          value={selectedGameLength}
-          onChange={(event) => setSelectedGameLength(event.target.value as GameLengthPresetId)}
+          value={selectedMode}
+          onChange={(event) => {
+            setSelectedMode(event.target.value as GameModeId);
+            setError(null);
+          }}
         >
-          {GAME_LENGTH_PRESETS.map((preset) => (
-            <option key={preset.id} value={preset.id}>
-              {preset.label}
+          {GAME_MODE_OPTIONS.map((option) => (
+            <option key={option.id} value={option.id}>
+              {option.label}
             </option>
           ))}
         </select>
       </label>
-      {players.length > 2 ? (
-        <p className="info-text">
-          Timed presets are calibrated for 2-player games. Larger games may run longer.
-        </p>
+      {selectedMode === "TIMED" ? (
+        <label>
+          Time limit
+          <select
+            value={selectedTimedOption}
+            onChange={(event) => {
+              setSelectedTimedOption(event.target.value as TimedModeOptionId);
+              setError(null);
+            }}
+          >
+            {TIMED_MODE_OPTIONS.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+      {selectedMode === "FIXED_ROUNDS" ? (
+        <label>
+          Round limit
+          <select
+            value={selectedFixedRoundOption}
+            onChange={(event) => {
+              setSelectedFixedRoundOption(event.target.value as FixedRoundOptionId);
+              setError(null);
+            }}
+          >
+            {FIXED_ROUND_OPTIONS.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
       ) : null}
 
       {players.map((player, index) => (
