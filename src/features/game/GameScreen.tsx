@@ -13,11 +13,15 @@ import { TurnControls } from "./TurnControls";
 interface GameScreenProps {
   initial: GameState;
   diceValueProvider?: () => number;
+  onExitWithSave?: (state: GameState) => void;
+  onExitWithoutSave?: () => void;
 }
 
 export function GameScreen({
   initial,
-  diceValueProvider = () => Math.floor(Math.random() * 6) + 1
+  diceValueProvider = () => Math.floor(Math.random() * 6) + 1,
+  onExitWithSave = () => {},
+  onExitWithoutSave = () => {}
 }: GameScreenProps) {
   const [state, dispatch] = useReducer(reducer, initial);
   const [showPassOverlay, setShowPassOverlay] = useState(false);
@@ -61,7 +65,13 @@ export function GameScreen({
               <span>Phase: {state.phase}</span>
             </div>
           </header>
-          <TurnControls state={state} onDispatch={handleDispatch} diceValueProvider={diceValueProvider} />
+          <TurnControls
+            state={state}
+            onDispatch={handleDispatch}
+            diceValueProvider={diceValueProvider}
+            onExitWithSave={() => onExitWithSave(state)}
+            onExitWithoutSave={onExitWithoutSave}
+          />
           <PlayerPanel state={state} />
         </aside>
         <BoardView state={state} />

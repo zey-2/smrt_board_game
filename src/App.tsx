@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { loadGameState } from "./game/persistence/localSave";
+import { clearSavedGameState, loadGameState, saveGameState } from "./game/persistence/localSave";
 import { createGameState } from "./game/state/initialState";
 import type { GameState } from "./game/types";
 import { GameScreen } from "./features/game/GameScreen";
@@ -30,6 +30,18 @@ export default function App() {
     setMode("game");
   };
 
+  const handleExitWithSave = (state: GameState) => {
+    saveGameState(state);
+    setCurrentGameState(state);
+    setMode("setup");
+  };
+
+  const handleExitWithoutSave = () => {
+    clearSavedGameState();
+    setCurrentGameState(createGameState());
+    setMode("setup");
+  };
+
   return (
     <main className={shellClassName}>
       {mode === "setup" ? (
@@ -57,7 +69,11 @@ export default function App() {
           <SetupScreen onStart={handleStart} />
         </>
       ) : (
-        <GameScreen initial={currentGameState} />
+        <GameScreen
+          initial={currentGameState}
+          onExitWithSave={handleExitWithSave}
+          onExitWithoutSave={handleExitWithoutSave}
+        />
       )}
     </main>
   );

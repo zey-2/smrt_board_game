@@ -1,8 +1,16 @@
 import { describe, expect, test } from "vitest";
 import { initialState } from "../state/initialState";
-import { loadGameState, saveGameState } from "./localSave";
+import { clearSavedGameState, loadGameState, saveGameState } from "./localSave";
 
 describe("localSave", () => {
+  test("clears saved game state", () => {
+    saveGameState(initialState);
+
+    clearSavedGameState();
+
+    expect(loadGameState()).toBeNull();
+  });
+
   test("saves and restores game state", () => {
     saveGameState(initialState);
     const loaded = loadGameState();

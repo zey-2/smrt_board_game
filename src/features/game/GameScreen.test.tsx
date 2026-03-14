@@ -40,4 +40,14 @@ describe("GameScreen", () => {
     const activeCard = container.querySelector(".player-card.active-player");
     expect(activeCard).toHaveClass("service-running");
   });
+
+  test("renders exit actions in a separate control row", () => {
+    const { container } = render(<GameScreen initial={initialState} />);
+
+    const exitActions = container.querySelector(".control-panel .exit-actions");
+
+    expect(exitActions).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Save" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Abort" })).toBeInTheDocument();
+  });
 });

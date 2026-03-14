@@ -5,12 +5,16 @@ interface TurnControlsProps {
   state: GameState;
   onDispatch: (action: GameAction) => void;
   diceValueProvider: () => number;
+  onExitWithSave: () => void;
+  onExitWithoutSave: () => void;
 }
 
 export function TurnControls({
   state,
   onDispatch,
-  diceValueProvider
+  diceValueProvider,
+  onExitWithSave,
+  onExitWithoutSave
 }: TurnControlsProps) {
   const player = state.players[state.turnIndex];
   const tile = state.board[player.position];
@@ -62,6 +66,14 @@ export function TurnControls({
             End Turn
           </button>
         ) : null}
+      </div>
+      <div className="inline-actions exit-actions">
+        <button type="button" onClick={onExitWithSave}>
+          Save
+        </button>
+        <button type="button" onClick={onExitWithoutSave}>
+          Abort
+        </button>
       </div>
       {state.pendingMessage ? <p className="info-text">{state.pendingMessage}</p> : null}
     </section>

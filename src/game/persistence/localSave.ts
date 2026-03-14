@@ -6,6 +6,10 @@ export function saveGameState(state: GameState): void {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
+export function clearSavedGameState(): void {
+  localStorage.removeItem(STORAGE_KEY);
+}
+
 export function loadGameState(): GameState | null {
   const serialized = localStorage.getItem(STORAGE_KEY);
   if (!serialized) return null;
