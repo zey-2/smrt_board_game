@@ -1,0 +1,108 @@
+import { buyStation, payRent } from "../rules/economy";
+import { shouldBuyStation } from "./policy";
+import type { PurchasePolicy } from "./policy";
+import type {
+  SimulationMetricDelta,
+  SimulationPlayer,
+  SimulationStationTile,
+  SimulationTile
+} from "./types";
+
+export interface ResolveLandingTurnInput {
+  player: SimulationPlayer;
+  tile: SimulationTile;
+  owner?: SimulationPlayer;
+  policy: PurchasePolicy;
+}
+
+export interface ResolveLandingTurnResult {
+  player: SimulationPlayer;
+  owner?: SimulationPlayer;
+  tile: SimulationTile;
+  metrics: SimulationMetricDelta;
+}
+
+function createEmptyMetrics(): SimulationMetricDelta {
+  return {
+    stationPurchases: 0,
+    rentPayments: 0,
+    bankruptcies: 0,
+    cashTileAwards: 0
+  };
+}
+
+function resolveStationLanding(
+  input: ResolveLandingTurnInput,
+  tile: SimulationStationTile
+): ResolveLandingTurnResult {
+  const metrics = createEmptyMetrics();
+
+  if (tile.ownerId === null && shouldBuyStation(input.player.cash, tile.price, input.policy)) {
+    const result = buyStation(input.player, tile);
+
+    if (!result.ok) {
+      return {
+        player: input.player,
+        owner: input.owner,
+        tile,
+        metrics
+      };
+    }
+
+    return {
+      player: result.player,
+      owner: input.owner,
+      tile: result.tile,
+      metrics: {
+        ...metrics,
+        stationPurchases: 1
+      }
+    };
+  }
+
+  if (tile.ownerId !== null && tile.ownerId !== input.player.id) {
+    if (!input.owner) {
+      throw new Error(`Missing owner for tile ${tile.id}`);
+    }
+
+    const result = payRent(input.player, input.owner, tile.baseRent);
+    return {
+      player: result.payer,
+      owner: result.owner,
+      tile,
+      metrics: {
+        ...metrics,
+        rentPayments: 1,
+        bankruptcies: result.payer.status === "bankrupt" ? 1 : 0
+      }
+    };
+  }
+
+  return {
+    player: input.player,
+    owner: input.owner,
+    tile,
+    metrics
+  };
+}
+
+export function resolveLandingTurn(
+  input: ResolveLandingTurnInput
+): ResolveLandingTurnResult {
+  if (input.tile.type === "cash") {
+    return {
+      player: {
+        ...input.player,
+        cash: input.player.cash + input.tile.reward
+      },
+      owner: input.owner,
+      tile: input.tile,
+      metrics: {
+        ...createEmptyMetrics(),
+        cashTileAwards: 1
+      }
+    };
+  }
+
+  return resolveStationLanding(input, input.tile);
+}
