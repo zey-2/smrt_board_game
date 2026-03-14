@@ -37,6 +37,8 @@ export function GameScreen({
 }: GameScreenProps) {
   const [state, dispatch] = useReducer(reducer, initial);
   const [showTurnHandoff, setShowTurnHandoff] = useState(false);
+  const [isAutoPlayEnabled, setIsAutoPlayEnabled] = useState(false);
+  const reserveCashTarget = Math.max(100, Math.round(state.config.initialCash * 0.2));
   const [movementPlayback, setMovementPlayback] = useState<{
     playerId: string;
     path: number[];
@@ -119,6 +121,54 @@ export function GameScreen({
     }
   };
 
+  useEffect(() => {
+    if (!isAutoPlayEnabled || state.phase === "completed") {
+      return undefined;
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      if (showTurnHandoff) {
+        setShowTurnHandoff(false);
+        return;
+      }
+
+      if (isMovementInProgress) {
+        return;
+      }
+
+      if (state.phase === "roll") {
+        handleDispatch({
+          type: "ROLL_DICE",
+          payload: { value: diceValueProvider() }
+        });
+        return;
+      }
+
+      if (state.phase === "resolve_tile") {
+        const currentPlayer = state.players[state.turnIndex];
+        const tile = state.board[currentPlayer.position];
+        const shouldConserveMoney = currentPlayer.cash - tile.price < reserveCashTarget;
+
+        handleDispatch({ type: shouldConserveMoney ? "SKIP_PURCHASE" : "BUY_STATION" });
+        return;
+      }
+
+      if (state.phase === "turn_end") {
+        handleDispatch({ type: "END_TURN" });
+      }
+    }, 450);
+
+    return () => window.clearTimeout(timeoutId);
+  }, [
+    diceValueProvider,
+    handleDispatch,
+    isAutoPlayEnabled,
+    isMovementInProgress,
+    reserveCashTarget,
+    showTurnHandoff,
+    state
+  ]);
+
   const nextPlayerName = state.players[state.turnIndex]?.name ?? "Next player";
   const ranking = [...state.players]
     .map((player) => {
@@ -180,6 +230,9 @@ export function GameScreen({
             showTurnHandoff={showTurnHandoff}
             nextPlayerName={nextPlayerName}
             onStartTurn={() => setShowTurnHandoff(false)}
+            isAutoPlayEnabled={isAutoPlayEnabled}
+            onToggleAutoPlay={() => setIsAutoPlayEnabled((current) => !current)}
+            reserveCashTarget={reserveCashTarget}
           />
           <PlayerPanel state={state} />
         </aside>

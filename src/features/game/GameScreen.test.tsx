@@ -246,7 +246,10 @@ describe("GameScreen", () => {
     const controlPanel = container.querySelector(".control-panel");
     expect(controlPanel).toBeTruthy();
 
-    const buttons = within(controlPanel as HTMLElement).getAllByRole("button");
+    const buttons = [
+      within(controlPanel as HTMLElement).getByRole("button", { name: "Buy Station" }),
+      within(controlPanel as HTMLElement).getByRole("button", { name: "Skip Purchase" })
+    ];
 
     expect(buttons.map((button) => button.textContent?.trim())).toEqual([
       "Buy Station",
@@ -290,6 +293,42 @@ describe("GameScreen", () => {
 
     expect(screen.queryByText(/'s Turn$/)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Roll Dice" })).toBeInTheDocument();
+  });
+
+  test("toggles auto play mode on and off during the game", async () => {
+    const user = userEvent.setup();
+    render(<GameScreen initial={initialState} />);
+
+    const toggleButton = screen.getByRole("button", { name: "Enable Auto Play" });
+    expect(toggleButton).toBeInTheDocument();
+
+    await user.click(toggleButton);
+    expect(screen.getByRole("button", { name: "Disable Auto Play" })).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Disable Auto Play" }));
+    expect(screen.getByRole("button", { name: "Enable Auto Play" })).toBeInTheDocument();
+  });
+
+  test("auto play conserves money by skipping purchases that breach reserve cash", async () => {
+    vi.useFakeTimers();
+    const lowCashState = {
+      ...initialState,
+      phase: "resolve_tile" as const,
+      players: [{ ...initialState.players[0], cash: 250 }, initialState.players[1]]
+    };
+
+    render(<GameScreen initial={lowCashState} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Enable Auto Play" }));
+
+    await act(async () => {
+      vi.advanceTimersByTime(500);
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Disable Auto Play" }));
+
+    expect(screen.getByText("Purchase skipped")).toBeInTheDocument();
+    expect(screen.queryByText(new RegExp(`${lowCashState.players[0].name} purchased`, "i"))).not.toBeInTheDocument();
   });
 
   test("renders a draw banner for completed games without a winner", () => {
