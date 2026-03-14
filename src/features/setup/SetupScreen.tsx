@@ -89,8 +89,10 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
     const config = buildGameConfigFromGameLengthPreset(selectedGameLength);
     const result = validateAndBuildSetup({
       players,
+      mode: config.mode,
       endCondition: config.endCondition,
       initialCash: config.initialCash,
+      timeLimitSeconds: config.timeLimitSeconds,
       fixedRoundLimit: config.fixedRoundLimit,
       targetWealth: config.targetWealth
     });

@@ -24,7 +24,9 @@ describe("SetupScreen", () => {
     await user.click(startButton);
     expect(onStart).toHaveBeenCalledTimes(1);
     expect(onStart.mock.calls[0][0].config).toMatchObject({
+      mode: "TIMED",
       endCondition: "FIXED_ROUNDS",
+      timeLimitSeconds: 1200,
       fixedRoundLimit: 12
     });
   });
