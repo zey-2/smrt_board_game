@@ -1,4 +1,9 @@
-import { calculateNetWorth, buyStation } from "../rules/economy";
+import {
+  buyStation,
+  calculateNetWorth,
+  calculateTransportFare,
+  payTransportFare
+} from "../rules/economy";
 import { evaluateEndCondition } from "../rules/endConditions";
 import type { EndConditionResolution } from "../rules/endConditions";
 import { resolveHighestNetWorthOutcome } from "../rules/endConditions";
@@ -51,6 +56,33 @@ function withLog(state: GameState, logLine: string): GameState {
     ...state,
     actionLog: nextLog.slice(Math.max(0, nextLog.length - APP_LOG_LIMIT))
   };
+}
+
+function finalizeOwnedArrival(
+  state: GameState,
+  players: Player[],
+  pendingMessage: string,
+  logLine: string
+): GameState {
+  const nextState = withLog(
+    {
+      ...state,
+      players,
+      phase: "turn_end",
+      pendingMessage
+    },
+    logLine
+  );
+
+  const resolution = maybeResolveWinner(nextState);
+  return resolution.isComplete
+    ? {
+        ...nextState,
+        winnerId: resolution.winnerId,
+        phase: "completed",
+        pendingMessage: getCompletionMessage(resolution)
+      }
+    : nextState;
 }
 
 export function reducer(state: GameState, action: GameAction): GameState {
@@ -122,8 +154,56 @@ export function reducer(state: GameState, action: GameAction): GameState {
       action.payload.value,
       state.board.length
     );
+    const destinationTile = state.board[nextPosition];
     const players = [...state.players];
     players[state.turnIndex] = { ...currentPlayer, position: nextPosition };
+
+    if (destinationTile.ownerId === currentPlayer.id) {
+      return finalizeOwnedArrival(
+        {
+          ...state,
+          players,
+          lastDiceRoll: action.payload.value
+        },
+        players,
+        `${currentPlayer.name} arrived at their own station`,
+        `${currentPlayer.name} arrived at ${destinationTile.name}`
+      );
+    }
+
+    if (destinationTile.ownerId !== null) {
+      const ownerIndex = state.players.findIndex((player) => player.id === destinationTile.ownerId);
+
+      if (ownerIndex < 0) {
+        throw new Error(`Missing owner for tile ${destinationTile.id}`);
+      }
+
+      const owner = state.players[ownerIndex];
+      const fare = calculateTransportFare(action.payload.value, state.config.transportFareRate);
+      const result = payTransportFare(currentPlayer, owner, fare);
+      players[state.turnIndex] = {
+        ...players[state.turnIndex],
+        cash: result.payer.cash,
+        status: result.payer.status ?? players[state.turnIndex].status
+      };
+      players[ownerIndex] = {
+        ...players[ownerIndex],
+        cash: result.owner.cash,
+        status: result.owner.status ?? players[ownerIndex].status
+      };
+
+      return finalizeOwnedArrival(
+        {
+          ...state,
+          players,
+          lastDiceRoll: action.payload.value
+        },
+        players,
+        `${currentPlayer.name} paid $${Math.min(currentPlayer.cash, fare)} transport fare to ${owner.name}`,
+        `${currentPlayer.name} paid transport fare to ${owner.name} for ${destinationTile.name}`
+      );
+    }
+
     return withLog(
       {
         ...state,

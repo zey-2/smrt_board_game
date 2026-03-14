@@ -23,7 +23,8 @@ export function TurnControls({
   const player = state.players[state.turnIndex];
   const tile = state.board[player.position];
   const canAfford = player.cash >= tile.price;
-  const showResolveActions = state.phase === "resolve_tile" && !isMovementInProgress;
+  const showResolveActions =
+    state.phase === "resolve_tile" && !isMovementInProgress && tile.ownerId === null;
   const canBuy = showResolveActions && tile.ownerId === null && canAfford;
 
   return (
@@ -84,7 +85,7 @@ export function TurnControls({
               </>
             ) : null}
 
-            {state.phase === "turn_end" ? (
+            {state.phase === "turn_end" && !isMovementInProgress ? (
               <button className="primary-button" type="button" onClick={() => onDispatch({ type: "END_TURN" })}>
                 End Turn
               </button>

@@ -19,6 +19,9 @@ export function BoardView({ state, animatedMovement = null }: BoardViewProps) {
       <div className="board-panel-header">
         <h3>MRT STATIONS</h3>
         <span>{state.board.length} stations</span>
+        <span
+          style={{ color: "#4b6079", fontSize: "12px", fontWeight: 700, textTransform: "none" }}
+        >{`Fare rate $${state.config.transportFareRate}/stop`}</span>
       </div>
       <ol className="board-grid compact-board-grid">
         {state.board.map((tile, index) => {
@@ -44,7 +47,6 @@ export function BoardView({ state, animatedMovement = null }: BoardViewProps) {
               </div>
               <div className="station-metrics">
                 <span>${tile.price}</span>
-                <span>Rent {tile.baseRent}</span>
               </div>
               <div className="station-owner">Owner {tile.ownerId ?? "none"}</div>
               {playersHere.length > 0 ? (

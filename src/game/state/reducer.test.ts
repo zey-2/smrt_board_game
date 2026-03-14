@@ -77,6 +77,45 @@ describe("reducer", () => {
     expect(next.phase).toBe("resolve_tile");
   });
 
+  test("charges transport fare and ends the resolution step immediately when landing on another player's station", () => {
+    const board = KEY_STATIONS_PRESET.map((tile) =>
+      tile.id === "queenstown" ? { ...tile, ownerId: "p2" } : tile
+    );
+    const state = createGameState(
+      [
+        { ...initialState.players[0], id: "p1", cash: 500, position: 0, ownedStationIds: [] },
+        { ...initialState.players[1], id: "p2", cash: 700, position: 0, ownedStationIds: ["queenstown"] }
+      ],
+      initialState.config
+    );
+
+    const next = reducer({ ...state, board }, { type: "ROLL_DICE", payload: { value: 3 } });
+
+    expect(next.players[0].position).toBe(3);
+    expect(next.players[0].cash).toBe(425);
+    expect(next.players[1].cash).toBe(775);
+    expect(next.phase).toBe("turn_end");
+    expect(next.pendingMessage).toContain("transport fare");
+  });
+
+  test("keeps unowned destinations in resolve_tile so the player can buy", () => {
+    const next = reducer(initialState, { type: "ROLL_DICE", payload: { value: 1 } });
+
+    expect(next.phase).toBe("resolve_tile");
+    expect(next.pendingMessage).toBeNull();
+  });
+
+  test("throws when landing on an owned station whose owner cannot be found", () => {
+    const board = KEY_STATIONS_PRESET.map((tile) =>
+      tile.id === "queenstown" ? { ...tile, ownerId: "missing-owner" } : tile
+    );
+    const state = createGameState(initialState.players, initialState.config);
+
+    expect(() =>
+      reducer({ ...state, board }, { type: "ROLL_DICE", payload: { value: 3 } })
+    ).toThrow("Missing owner for tile queenstown");
+  });
+
   test("END_TURN advances turn and increments round when cycling", () => {
     const afterFirst = reducer(
       { ...initialState, phase: "turn_end" as const },

@@ -100,18 +100,20 @@ describe("GameScreen", () => {
 
     const jurongEastName = within(boardPanel as HTMLElement).getAllByText("Jurong East")[0];
     const priceLabel = screen.getAllByText("$280")[0];
-    const rentLabel = screen.getAllByText("Rent 28")[0];
     const ownerLabel = screen.getAllByText(/Owner none/i)[0];
+    const fareRateLabel = within(boardPanel as HTMLElement).getByText(
+      `Fare rate $${initialState.config.transportFareRate}/stop`
+    );
 
     expect(screen.getAllByText("$280").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Rent 28").length).toBeGreaterThan(0);
+    expect(screen.queryByText("Rent 28")).not.toBeInTheDocument();
     expect(screen.getAllByText(/Owner none/i).length).toBeGreaterThan(0);
     expect(screen.queryAllByText("East West Line")).toHaveLength(0);
     expect(screen.queryAllByText("Circle Line")).toHaveLength(0);
     expect(getComputedStyle(jurongEastName).fontSize).toBe("15px");
     expect(getComputedStyle(priceLabel).fontSize).toBe("12px");
-    expect(getComputedStyle(rentLabel).fontSize).toBe("12px");
     expect(getComputedStyle(ownerLabel).fontSize).toBe("12px");
+    expect(getComputedStyle(fareRateLabel).fontSize).toBe("12px");
   });
 
   test("shows the updated 25-station board count", () => {
@@ -208,6 +210,30 @@ describe("GameScreen", () => {
 
     expect(screen.getByRole("button", { name: "Buy Station" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Skip Purchase" })).toBeInTheDocument();
+  });
+
+  test("waits for movement playback before showing end turn on an owned-station arrival", async () => {
+    vi.useFakeTimers();
+    const ownedDestinationState = createGameState(
+      [
+        { ...initialState.players[0], id: "p1", position: 0, cash: 500 },
+        { ...initialState.players[1], id: "p2", position: 0, cash: 700, ownedStationIds: ["queenstown"] }
+      ],
+      initialState.config
+    );
+    ownedDestinationState.board = ownedDestinationState.board.map((tile) =>
+      tile.id === "queenstown" ? { ...tile, ownerId: "p2" } : tile
+    );
+
+    render(<GameScreen initial={ownedDestinationState} diceValueProvider={() => 3} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Roll Dice" }));
+
+    expect(screen.queryByRole("button", { name: "End Turn" })).not.toBeInTheDocument();
+
+    await advancePlaybackFrames(4);
+
+    expect(screen.getByRole("button", { name: "End Turn" })).toBeInTheDocument();
   });
 
   test("shows skip purchase before buy station visually while preserving DOM order", () => {
