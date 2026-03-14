@@ -165,8 +165,10 @@ describe("GameScreen", () => {
 
     expect(statusCard).toBeTruthy();
     expect(controlPanel).toBeTruthy();
+    expect(within(statusCard as HTMLElement).getByRole("button", { name: "Auto Play" })).toBeInTheDocument();
     expect(within(statusCard as HTMLElement).getByRole("button", { name: "Save" })).toBeInTheDocument();
     expect(within(statusCard as HTMLElement).getByRole("button", { name: "Abort" })).toBeInTheDocument();
+    expect(within(controlPanel as HTMLElement).queryByRole("button", { name: "Auto Play" })).not.toBeInTheDocument();
     expect(within(controlPanel as HTMLElement).queryByRole("button", { name: "Save" })).not.toBeInTheDocument();
     expect(within(controlPanel as HTMLElement).queryByRole("button", { name: "Abort" })).not.toBeInTheDocument();
   });
@@ -299,14 +301,21 @@ describe("GameScreen", () => {
     const user = userEvent.setup();
     render(<GameScreen initial={initialState} />);
 
-    const toggleButton = screen.getByRole("button", { name: "Enable Auto Play" });
+    const toggleButton = screen.getByRole("button", { name: "Auto Play" });
     expect(toggleButton).toBeInTheDocument();
+    expect(toggleButton).toHaveAttribute("aria-pressed", "false");
 
     await user.click(toggleButton);
-    expect(screen.getByRole("button", { name: "Disable Auto Play" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Auto Play" })).toHaveAttribute(
+      "aria-pressed",
+      "true"
+    );
 
-    await user.click(screen.getByRole("button", { name: "Disable Auto Play" }));
-    expect(screen.getByRole("button", { name: "Enable Auto Play" })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "Auto Play" }));
+    expect(screen.getByRole("button", { name: "Auto Play" })).toHaveAttribute(
+      "aria-pressed",
+      "false"
+    );
   });
 
   test("auto play conserves money by skipping purchases that breach reserve cash", async () => {
@@ -319,13 +328,13 @@ describe("GameScreen", () => {
 
     render(<GameScreen initial={lowCashState} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Enable Auto Play" }));
+    fireEvent.click(screen.getByRole("button", { name: "Auto Play" }));
 
     await act(async () => {
       vi.advanceTimersByTime(500);
     });
 
-    fireEvent.click(screen.getByRole("button", { name: "Disable Auto Play" }));
+    fireEvent.click(screen.getByRole("button", { name: "Auto Play" }));
 
     expect(screen.getByText("Purchase skipped")).toBeInTheDocument();
     expect(screen.queryByText(new RegExp(`${lowCashState.players[0].name} purchased`, "i"))).not.toBeInTheDocument();

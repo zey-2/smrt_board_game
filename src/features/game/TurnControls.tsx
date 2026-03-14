@@ -9,9 +9,6 @@ interface TurnControlsProps {
   showTurnHandoff: boolean;
   nextPlayerName: string;
   onStartTurn: () => void;
-  isAutoPlayEnabled: boolean;
-  onToggleAutoPlay: () => void;
-  reserveCashTarget: number;
 }
 
 export function TurnControls({
@@ -21,10 +18,7 @@ export function TurnControls({
   isMovementInProgress,
   showTurnHandoff,
   nextPlayerName,
-  onStartTurn,
-  isAutoPlayEnabled,
-  onToggleAutoPlay,
-  reserveCashTarget
+  onStartTurn
 }: TurnControlsProps) {
   const player = state.players[state.turnIndex];
   const tile = state.board[player.position];
@@ -36,14 +30,6 @@ export function TurnControls({
   return (
     <section className="card control-panel">
       <h3>Turn Controls</h3>
-      <div className="inline-actions">
-        <button type="button" className="accent-button" onClick={onToggleAutoPlay}>
-          {isAutoPlayEnabled ? "Disable Auto Play" : "Enable Auto Play"}
-        </button>
-      </div>
-      <p className="info-text">
-        Auto play keeps at least ${reserveCashTarget} before buying stations.
-      </p>
       {showTurnHandoff ? (
         <div className="turn-handoff-card">
           <h4>{nextPlayerName}'s Turn</h4>

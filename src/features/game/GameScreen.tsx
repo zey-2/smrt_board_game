@@ -214,6 +214,14 @@ export function GameScreen({
               </div>
             </div>
             <div className="inline-actions map-status-actions">
+              <button
+                type="button"
+                className={`auto-play-toggle ${isAutoPlayEnabled ? "auto-play-toggle-enabled" : "auto-play-toggle-disabled"}`}
+                aria-pressed={isAutoPlayEnabled}
+                onClick={() => setIsAutoPlayEnabled((current) => !current)}
+              >
+                Auto Play
+              </button>
               <button type="button" onClick={() => onExitWithSave(state)}>
                 Save
               </button>
@@ -230,9 +238,6 @@ export function GameScreen({
             showTurnHandoff={showTurnHandoff}
             nextPlayerName={nextPlayerName}
             onStartTurn={() => setShowTurnHandoff(false)}
-            isAutoPlayEnabled={isAutoPlayEnabled}
-            onToggleAutoPlay={() => setIsAutoPlayEnabled((current) => !current)}
-            reserveCashTarget={reserveCashTarget}
           />
           <PlayerPanel state={state} />
         </aside>
