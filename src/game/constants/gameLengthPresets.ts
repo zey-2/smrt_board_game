@@ -55,12 +55,24 @@ export const GAME_LENGTH_PRESETS: GameLengthPreset[] = [
   }
 ];
 
+function getDefaultGameLengthPreset(): GameLengthPreset {
+  const defaultPreset = GAME_LENGTH_PRESETS.find(
+    (entry) => entry.id === DEFAULT_GAME_LENGTH_PRESET_ID
+  );
+
+  if (!defaultPreset) {
+    throw new Error(`Missing default game length preset: ${DEFAULT_GAME_LENGTH_PRESET_ID}`);
+  }
+
+  return defaultPreset;
+}
+
 export function buildGameConfigFromGameLengthPreset(
   presetId: GameLengthPresetId,
   overrides: Partial<Pick<GameConfig, "initialCash" | "targetWealth">> = {}
 ): GameConfig {
   const preset =
-    GAME_LENGTH_PRESETS.find((entry) => entry.id === presetId) ?? GAME_LENGTH_PRESETS[0];
+    GAME_LENGTH_PRESETS.find((entry) => entry.id === presetId) ?? getDefaultGameLengthPreset();
 
   return {
     endCondition: preset.endCondition,

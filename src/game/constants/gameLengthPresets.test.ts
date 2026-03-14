@@ -2,7 +2,8 @@ import { describe, expect, test } from "vitest";
 import {
   DEFAULT_GAME_LENGTH_PRESET_ID,
   GAME_LENGTH_PRESETS,
-  buildGameConfigFromGameLengthPreset
+  buildGameConfigFromGameLengthPreset,
+  type GameLengthPresetId
 } from "./gameLengthPresets";
 
 describe("gameLengthPresets", () => {
@@ -27,6 +28,32 @@ describe("gameLengthPresets", () => {
 
     expect(buildGameConfigFromGameLengthPreset("CLASSIC")).toMatchObject({
       endCondition: "LAST_PLAYER_STANDING",
+      fixedRoundLimit: 12
+    });
+  });
+
+  test("maps the 10, 15, and 30 minute presets to their fixed-round limits", () => {
+    expect(buildGameConfigFromGameLengthPreset("MINUTES_10")).toMatchObject({
+      endCondition: "FIXED_ROUNDS",
+      fixedRoundLimit: 6
+    });
+
+    expect(buildGameConfigFromGameLengthPreset("MINUTES_15")).toMatchObject({
+      endCondition: "FIXED_ROUNDS",
+      fixedRoundLimit: 9
+    });
+
+    expect(buildGameConfigFromGameLengthPreset("MINUTES_30")).toMatchObject({
+      endCondition: "FIXED_ROUNDS",
+      fixedRoundLimit: 18
+    });
+  });
+
+  test("falls back to the explicit default timed preset for unknown ids", () => {
+    expect(
+      buildGameConfigFromGameLengthPreset("UNKNOWN_PRESET" as GameLengthPresetId)
+    ).toMatchObject({
+      endCondition: "FIXED_ROUNDS",
       fixedRoundLimit: 12
     });
   });
