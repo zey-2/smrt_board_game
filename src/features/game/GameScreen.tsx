@@ -57,6 +57,7 @@ export function GameScreen({
   return (
     <section className="game-layout">
       <div className="game-viewport">
+        <BoardView state={state} />
         <aside className="game-sidebar">
           <header className="card map-status map-status-compact">
             <h2>SMRT Monopoly</h2>
@@ -74,7 +75,6 @@ export function GameScreen({
           />
           <PlayerPanel state={state} />
         </aside>
-        <BoardView state={state} />
       </div>
       {isCompleted ? (
         <WinnerScreen winnerName={winnerName} ranking={ranking} />

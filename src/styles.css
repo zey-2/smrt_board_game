@@ -159,7 +159,7 @@ select:focus-visible {
 .game-viewport {
   display: grid;
   gap: 10px;
-  grid-template-columns: minmax(260px, 300px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 300px);
   height: 100%;
   min-height: 0;
 }

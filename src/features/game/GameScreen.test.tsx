@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, test } from "vitest";
 import { initialState } from "../../game/state/initialState";
 import { GameScreen } from "./GameScreen";
+import "../../styles.css";
 
 describe("GameScreen", () => {
   test("allows current player to roll and updates phase", async () => {
@@ -25,6 +26,24 @@ describe("GameScreen", () => {
     expect(container.querySelector(".game-viewport")).toBeTruthy();
     expect(container.querySelector(".game-sidebar")).toBeTruthy();
     expect(container.querySelector(".game-board-panel")).toBeTruthy();
+  });
+
+  test("renders the board before the sidebar so the sidebar sits on the right and below on smaller screens", () => {
+    const { container } = render(<GameScreen initial={initialState} />);
+    const boardPanel = container.querySelector(".game-board-panel");
+    const sidebar = container.querySelector(".game-sidebar");
+
+    expect(boardPanel).toBeTruthy();
+    expect(sidebar).toBeTruthy();
+    expect(boardPanel?.compareDocumentPosition(sidebar as Element)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  test("uses a wide first desktop column for the board and a narrow second column for the sidebar", () => {
+    const { container } = render(<GameScreen initial={initialState} />);
+    const viewport = container.querySelector(".game-viewport");
+
+    expect(viewport).toBeTruthy();
+    expect(getComputedStyle(viewport as Element).gridTemplateColumns).toContain("minmax(0, 1fr) minmax(260px, 300px)");
   });
 
   test("shows compact station labels while keeping board data visible", () => {
