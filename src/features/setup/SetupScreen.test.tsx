@@ -66,6 +66,63 @@ describe("SetupScreen", () => {
     });
   });
 
+  test("shows a note that timed presets are calibrated for 2-player games when player count is above 2", async () => {
+    const user = userEvent.setup();
+    render(<SetupScreen onStart={() => undefined} />);
+
+    expect(
+      screen.queryByText("Timed presets are calibrated for 2-player games. Larger games may run longer.")
+    ).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "Add Player" }));
+
+    expect(
+      screen.getByText("Timed presets are calibrated for 2-player games. Larger games may run longer.")
+    ).toBeInTheDocument();
+  });
+
+  test("uses the 10-minute game length option when starting the game", async () => {
+    const onStart = vi.fn();
+    const user = userEvent.setup();
+    render(<SetupScreen onStart={onStart} />);
+
+    await user.selectOptions(screen.getByLabelText("Game length"), "MINUTES_10");
+    await user.click(screen.getByRole("button", { name: "Start Game" }));
+
+    expect(onStart.mock.calls[0][0].config).toMatchObject({
+      endCondition: "FIXED_ROUNDS",
+      fixedRoundLimit: 6
+    });
+  });
+
+  test("uses the 15-minute game length option when starting the game", async () => {
+    const onStart = vi.fn();
+    const user = userEvent.setup();
+    render(<SetupScreen onStart={onStart} />);
+
+    await user.selectOptions(screen.getByLabelText("Game length"), "MINUTES_15");
+    await user.click(screen.getByRole("button", { name: "Start Game" }));
+
+    expect(onStart.mock.calls[0][0].config).toMatchObject({
+      endCondition: "FIXED_ROUNDS",
+      fixedRoundLimit: 9
+    });
+  });
+
+  test("uses the 30-minute game length option when starting the game", async () => {
+    const onStart = vi.fn();
+    const user = userEvent.setup();
+    render(<SetupScreen onStart={onStart} />);
+
+    await user.selectOptions(screen.getByLabelText("Game length"), "MINUTES_30");
+    await user.click(screen.getByRole("button", { name: "Start Game" }));
+
+    expect(onStart.mock.calls[0][0].config).toMatchObject({
+      endCondition: "FIXED_ROUNDS",
+      fixedRoundLimit: 18
+    });
+  });
+
   test("does not show the board preset text on the setup screen", () => {
     render(<SetupScreen onStart={() => undefined} />);
 

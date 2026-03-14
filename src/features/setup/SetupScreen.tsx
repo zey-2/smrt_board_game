@@ -137,6 +137,11 @@ export function SetupScreen({ onStart }: SetupScreenProps) {
           ))}
         </select>
       </label>
+      {players.length > 2 ? (
+        <p className="info-text">
+          Timed presets are calibrated for 2-player games. Larger games may run longer.
+        </p>
+      ) : null}
 
       {players.map((player, index) => (
         <div className="player-row" key={`setup-player-${index}`}>
