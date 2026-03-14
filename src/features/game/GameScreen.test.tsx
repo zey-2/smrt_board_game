@@ -19,6 +19,22 @@ describe("GameScreen", () => {
     expect(screen.getAllByAltText(/line badge/i).length).toBeGreaterThan(0);
   });
 
+  test("renders a compact desktop layout shell with a board sidebar split", () => {
+    const { container } = render(<GameScreen initial={initialState} />);
+
+    expect(container.querySelector(".game-viewport")).toBeTruthy();
+    expect(container.querySelector(".game-sidebar")).toBeTruthy();
+    expect(container.querySelector(".game-board-panel")).toBeTruthy();
+  });
+
+  test("shows compact station labels while keeping board data visible", () => {
+    render(<GameScreen initial={initialState} />);
+
+    expect(screen.getAllByText("$280").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("Rent 28").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Owner none/i).length).toBeGreaterThan(0);
+  });
+
   test("highlights active player with service indicator class", () => {
     const { container } = render(<GameScreen initial={initialState} />);
     const activeCard = container.querySelector(".player-card.active-player");

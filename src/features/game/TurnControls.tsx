@@ -20,8 +20,16 @@ export function TurnControls({
   return (
     <section className="card control-panel">
       <h3>Turn Controls</h3>
-      <p>Current player: {player.name}</p>
-      <p>Current tile: {tile.name}</p>
+      <div className="control-summary">
+        <p>
+          <span>Now</span>
+          <strong>{player.name}</strong>
+        </p>
+        <p>
+          <span>Tile</span>
+          <strong>{tile.name}</strong>
+        </p>
+      </div>
       <div className="inline-actions">
         {state.phase === "roll" ? (
           <button

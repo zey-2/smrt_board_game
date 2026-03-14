@@ -14,6 +14,10 @@ export default function App() {
   const [currentGameState, setCurrentGameState] = useState<GameState>(
     savedState ?? createGameState()
   );
+  const shellClassName =
+    mode === "game"
+      ? "app-shell map-theme-shell game-page-shell"
+      : "app-shell map-theme-shell";
 
   const handleStart = (payload: SetupPayload) => {
     setCurrentGameState(createGameState(payload.players, payload.config));
@@ -27,16 +31,16 @@ export default function App() {
   };
 
   return (
-    <main className="app-shell map-theme-shell">
-      <header className="title-banner card">
-        <img src={smrtCorporateLogo} alt="SMRT" className="smrt-logo" />
-        <div>
-          <h1>SMRT Monopoly</h1>
-          <p>Transit-map inspired property strategy</p>
-        </div>
-      </header>
+    <main className={shellClassName}>
       {mode === "setup" ? (
         <>
+          <header className="title-banner card">
+            <img src={smrtCorporateLogo} alt="SMRT" className="smrt-logo" />
+            <div>
+              <h1>SMRT Monopoly</h1>
+              <p>Transit-map inspired property strategy</p>
+            </div>
+          </header>
           {savedState ? (
             <section className="card setup-card">
               <h2>Saved Game Found</h2>

@@ -22,9 +22,12 @@ const INTERCHANGE_STATIONS = new Set([
 
 export function BoardView({ state }: BoardViewProps) {
   return (
-    <section className="card">
-      <h3>Board</h3>
-      <ol className="board-grid">
+    <section className="card game-board-panel">
+      <div className="board-panel-header">
+        <h3>Board</h3>
+        <span>{state.board.length} stations</span>
+      </div>
+      <ol className="board-grid compact-board-grid">
         {state.board.map((tile, index) => {
           const playersHere = state.players.filter((player) => player.position === index);
           const lineThemeClass = getLineThemeClass(tile.line);
@@ -37,17 +40,19 @@ export function BoardView({ state }: BoardViewProps) {
                   alt={`${tile.line} line badge`}
                   className="line-badge"
                 />
-                <div>
+                <div className="station-heading">
                   <strong>{tile.name}</strong>
                   <div className="station-sub">{lineLabel}</div>
                 </div>
               </div>
               {INTERCHANGE_STATIONS.has(tile.name) ? (
-                <div className="station-sub">Interchange Hub</div>
+                <div className="station-flag">Interchange</div>
               ) : null}
-              <div>Price: ${tile.price}</div>
-              <div>Rent: ${tile.baseRent}</div>
-              <div>Owner: {tile.ownerId ?? "None"}</div>
+              <div className="station-metrics">
+                <span>${tile.price}</span>
+                <span>Rent {tile.baseRent}</span>
+              </div>
+              <div className="station-owner">Owner {tile.ownerId ?? "none"}</div>
               {playersHere.length > 0 ? (
                 <div className="token-row">
                   {playersHere.map((player) => (

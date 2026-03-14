@@ -48,20 +48,25 @@ export function GameScreen({
     .sort((a, b) => b.netWorth - a.netWorth);
 
   const winnerName = state.players.find((player) => player.id === state.winnerId)?.name ?? "No winner";
+  const isCompleted = state.phase === "completed";
 
   return (
     <section className="game-layout">
-      <header className="card map-status">
-        <h2>SMRT Monopoly</h2>
-        <div className="status-pills">
-          <span>Round: {state.round}</span>
-          <span>Phase: {state.phase}</span>
-        </div>
-      </header>
-      <TurnControls state={state} onDispatch={handleDispatch} diceValueProvider={diceValueProvider} />
-      <PlayerPanel state={state} />
-      <BoardView state={state} />
-      {state.phase === "completed" ? (
+      <div className="game-viewport">
+        <aside className="game-sidebar">
+          <header className="card map-status map-status-compact">
+            <h2>SMRT Monopoly</h2>
+            <div className="status-pills">
+              <span>Round: {state.round}</span>
+              <span>Phase: {state.phase}</span>
+            </div>
+          </header>
+          <TurnControls state={state} onDispatch={handleDispatch} diceValueProvider={diceValueProvider} />
+          <PlayerPanel state={state} />
+        </aside>
+        <BoardView state={state} />
+      </div>
+      {isCompleted ? (
         <WinnerScreen winnerName={winnerName} ranking={ranking} />
       ) : null}
       {showPassOverlay ? (
