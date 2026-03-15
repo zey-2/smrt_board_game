@@ -9,10 +9,16 @@ import { BoardView } from "./BoardView";
 import { PlayerPanel } from "./PlayerPanel";
 import { WinnerScreen } from "../results/WinnerScreen";
 import { TurnControls } from "./TurnControls";
+import {
+  DEFAULT_VIEWPORT_SUPPORT,
+  type ViewportSupport,
+  ViewportGateNotice
+} from "./ViewportGate";
 
 interface GameScreenProps {
   initial: GameState;
   diceValueProvider?: () => number;
+  viewportSupport?: ViewportSupport;
   onExitWithSave?: (state: GameState) => void;
   onExitWithoutSave?: () => void;
 }
@@ -32,6 +38,7 @@ function formatRemainingTime(remainingTimeMs: number | null) {
 export function GameScreen({
   initial,
   diceValueProvider = () => Math.floor(Math.random() * 6) + 1,
+  viewportSupport = DEFAULT_VIEWPORT_SUPPORT,
   onExitWithSave = () => {},
   onExitWithoutSave = () => {}
 }: GameScreenProps) {
@@ -141,52 +148,58 @@ export function GameScreen({
 
   return (
     <section className="game-layout">
-      <div className="game-viewport">
-        <BoardView
-          state={state}
-          animatedMovement={
-            movementPlayback
-              ? {
-                  playerId: movementPlayback.playerId,
-                  position: movementPlayback.path[movementPlayback.stepIndex]
-                }
-              : null
-          }
-        />
-        <aside className="game-sidebar">
-          <header className="card map-status map-status-compact">
-            <div className="map-status-main">
-              <h2>SMRT Monopoly</h2>
-              <div className="status-pills">
-                <span>Round: {state.round}</span>
-                <span>Phase: {state.phase}</span>
-                {remainingTimeLabel ? <span>Time left: {remainingTimeLabel}</span> : null}
-              </div>
-            </div>
-            <div className="inline-actions map-status-actions">
-              <button type="button" onClick={() => onExitWithSave(state)}>
-                Save
-              </button>
-              <button type="button" onClick={onExitWithoutSave}>
-                Abort
-              </button>
-            </div>
-          </header>
-          <TurnControls
-            state={state}
-            onDispatch={handleDispatch}
-            diceValueProvider={diceValueProvider}
-            isMovementInProgress={isMovementInProgress}
-            showTurnHandoff={showTurnHandoff}
-            nextPlayerName={nextPlayerName}
-            onStartTurn={() => setShowTurnHandoff(false)}
-          />
-          <PlayerPanel state={state} />
-        </aside>
-      </div>
-      {isCompleted ? (
-        <WinnerScreen winnerName={winnerName} isDraw={isDraw} ranking={ranking} />
-      ) : null}
+      {viewportSupport.isSupported ? (
+        <>
+          <div className="game-viewport">
+            <BoardView
+              state={state}
+              animatedMovement={
+                movementPlayback
+                  ? {
+                      playerId: movementPlayback.playerId,
+                      position: movementPlayback.path[movementPlayback.stepIndex]
+                    }
+                  : null
+              }
+            />
+            <aside className="game-sidebar">
+              <header className="card map-status map-status-compact">
+                <div className="map-status-main">
+                  <h2>SMRT Monopoly</h2>
+                  <div className="status-pills">
+                    <span>Round: {state.round}</span>
+                    <span>Phase: {state.phase}</span>
+                    {remainingTimeLabel ? <span>Time left: {remainingTimeLabel}</span> : null}
+                  </div>
+                </div>
+                <div className="inline-actions map-status-actions">
+                  <button type="button" onClick={() => onExitWithSave(state)}>
+                    Save
+                  </button>
+                  <button type="button" onClick={onExitWithoutSave}>
+                    Abort
+                  </button>
+                </div>
+              </header>
+              <TurnControls
+                state={state}
+                onDispatch={handleDispatch}
+                diceValueProvider={diceValueProvider}
+                isMovementInProgress={isMovementInProgress}
+                showTurnHandoff={showTurnHandoff}
+                nextPlayerName={nextPlayerName}
+                onStartTurn={() => setShowTurnHandoff(false)}
+              />
+              <PlayerPanel state={state} />
+            </aside>
+          </div>
+          {isCompleted ? (
+            <WinnerScreen winnerName={winnerName} isDraw={isDraw} ranking={ranking} />
+          ) : null}
+        </>
+      ) : (
+        <ViewportGateNotice viewportSupport={viewportSupport} isBlocking />
+      )}
     </section>
   );
 }

@@ -3,6 +3,7 @@ import { clearSavedGameState, loadGameState, saveGameState } from "./game/persis
 import { createGameState } from "./game/state/initialState";
 import type { GameState } from "./game/types";
 import { GameScreen } from "./features/game/GameScreen";
+import { ViewportGateNotice, useViewportSupport } from "./features/game/ViewportGate";
 import { SetupScreen, type SetupPayload } from "./features/setup/SetupScreen";
 import smrtCorporateLogo from "./assets/smrt/smrt-corporate-logo.jpg";
 
@@ -14,6 +15,7 @@ export default function App() {
   const [currentGameState, setCurrentGameState] = useState<GameState>(
     savedState ?? createGameState()
   );
+  const viewportSupport = useViewportSupport();
   const shellClassName =
     mode === "game"
       ? "app-shell map-theme-shell game-page-shell"
@@ -53,6 +55,9 @@ export default function App() {
               <p>Transit-map inspired board game</p>
             </div>
           </header>
+          {!viewportSupport.isSupported ? (
+            <ViewportGateNotice viewportSupport={viewportSupport} />
+          ) : null}
           <SetupScreen onStart={handleStart} />
           {savedState ? (
             <section className="card setup-card">
@@ -71,6 +76,7 @@ export default function App() {
       ) : (
         <GameScreen
           initial={currentGameState}
+          viewportSupport={viewportSupport}
           onExitWithSave={handleExitWithSave}
           onExitWithoutSave={handleExitWithoutSave}
         />
