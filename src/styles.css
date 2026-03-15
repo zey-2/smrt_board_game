@@ -287,6 +287,40 @@ select:focus-visible {
   min-height: 100%;
 }
 
+.viewport-notice-card {
+  display: grid;
+  gap: 14px;
+  max-width: 720px;
+}
+
+.viewport-notice-header {
+  display: grid;
+  gap: 8px;
+}
+
+.viewport-notice-header h2,
+.viewport-notice-header p,
+.viewport-notice-list {
+  margin: 0;
+}
+
+.viewport-notice-header p {
+  color: #4b6079;
+  line-height: 1.45;
+}
+
+.viewport-notice-list {
+  color: #17395d;
+  display: grid;
+  gap: 8px;
+  padding-left: 18px;
+}
+
+.viewport-notice-list li {
+  font-weight: 700;
+  line-height: 1.4;
+}
+
 .game-layout .card {
   margin-bottom: 0;
 }
