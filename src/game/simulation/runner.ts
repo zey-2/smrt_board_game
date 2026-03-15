@@ -16,7 +16,7 @@ import type {
 } from "./types";
 
 const DEFAULT_POLICY: PurchasePolicy = {
-  safetyThreshold: 200
+  safetyThreshold: 5
 };
 
 export interface SimulationConfig {

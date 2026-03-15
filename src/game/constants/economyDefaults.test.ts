@@ -7,8 +7,8 @@ import {
 
 describe("economy defaults", () => {
   test("exports the calibrated transport fare rate shared by live and simulated games", () => {
-    expect(DEFAULT_INITIAL_CASH).toBe(1500);
-    expect(DEFAULT_TARGET_WEALTH).toBe(8000);
-    expect(DEFAULT_TRANSPORT_FARE_RATE).toBe(37);
+    expect(DEFAULT_INITIAL_CASH).toBe(41);
+    expect(DEFAULT_TARGET_WEALTH).toBe(216);
+    expect(DEFAULT_TRANSPORT_FARE_RATE).toBe(1);
   });
 });

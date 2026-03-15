@@ -99,13 +99,13 @@ describe("GameScreen", () => {
     expect(boardPanel).toBeTruthy();
 
     const jurongEastName = within(boardPanel as HTMLElement).getAllByText("Jurong East")[0];
-    const priceLabel = screen.getAllByText("$280")[0];
+    const priceLabel = screen.getAllByText("$8")[0];
     const ownerLabel = screen.getAllByText(/Owner none/i)[0];
     const fareRateLabel = within(boardPanel as HTMLElement).getByText(
       `Fare rate $${initialState.config.transportFareRate}/stop`
     );
 
-    expect(screen.getAllByText("$280").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("$8").length).toBeGreaterThan(0);
     expect(screen.queryByText("Rent 28")).not.toBeInTheDocument();
     expect(screen.getAllByText(/Owner none/i).length).toBeGreaterThan(0);
     expect(screen.queryAllByText("East West Line")).toHaveLength(0);
