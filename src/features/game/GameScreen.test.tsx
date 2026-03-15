@@ -98,14 +98,17 @@ describe("GameScreen", () => {
     const boardPanel = container.querySelector(".game-board-panel");
     expect(boardPanel).toBeTruthy();
 
+    const firstStation = initialState.board[0];
+    const priceText = `$${firstStation.price}`;
+
     const jurongEastName = within(boardPanel as HTMLElement).getAllByText("Jurong East")[0];
-    const priceLabel = screen.getAllByText("$8")[0];
+    const priceLabel = screen.getAllByText(priceText)[0];
     const ownerLabel = screen.getAllByText(/Owner none/i)[0];
     const fareRateLabel = within(boardPanel as HTMLElement).getByText(
       `Fare rate $${initialState.config.transportFareRate}/stop`
     );
 
-    expect(screen.getAllByText("$8").length).toBeGreaterThan(0);
+    expect(screen.getAllByText(priceText).length).toBeGreaterThan(0);
     expect(screen.queryByText("Rent 28")).not.toBeInTheDocument();
     expect(screen.getAllByText(/Owner none/i).length).toBeGreaterThan(0);
     expect(screen.queryAllByText("East West Line")).toHaveLength(0);

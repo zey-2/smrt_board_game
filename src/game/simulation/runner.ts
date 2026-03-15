@@ -1,5 +1,9 @@
 import { calculateNetWorth } from "../rules/economy";
-import { DEFAULT_TRANSPORT_FARE_RATE } from "../constants/economyDefaults";
+import {
+  DEFAULT_INITIAL_CASH,
+  DEFAULT_TARGET_WEALTH,
+  DEFAULT_TRANSPORT_FARE_RATE
+} from "../constants/economyDefaults";
 import { evaluateEndCondition } from "../rules/endConditions";
 import type { EndConditionResolution } from "../rules/endConditions";
 import { movePosition } from "../rules/movement";
@@ -30,8 +34,8 @@ export interface SimulationConfig {
 const DEFAULT_CONFIG: SimulationConfig = {
   endCondition: "LAST_PLAYER_STANDING",
   fixedRoundLimit: 12,
-  targetWealth: 8000,
-  initialCash: 1500,
+  targetWealth: DEFAULT_TARGET_WEALTH,
+  initialCash: DEFAULT_INITIAL_CASH,
   transportFareRate: DEFAULT_TRANSPORT_FARE_RATE
 };
 
