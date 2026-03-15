@@ -710,6 +710,10 @@ select:focus-visible {
   .compact-board-grid {
     grid-template-columns: repeat(5, minmax(0, 1fr));
   }
+
+  .compact-board-grid.compact-board-grid--six-columns {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
